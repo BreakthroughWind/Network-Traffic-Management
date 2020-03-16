@@ -18,8 +18,14 @@ void reorg(packet* packet_array){
 // double probe(pathInfo* path_array);
 
 // implement sender function
+int sender(int argc, int* argv[]) {
+    int connFd;
+    
+}
 
 // implement receiver function
+int receiver() {
 
+}
 
 
