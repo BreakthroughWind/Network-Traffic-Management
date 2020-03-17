@@ -21,12 +21,12 @@ int conn_init(conn* connection) {
 }
 
 // sender: send function
-int conn_send(conn* connection, int data_len, int* data) {
+int conn_send(conn* connection, int data_len, char* data) {
 
 }
 
 // receiver: receive function
-int conn_read(conn* connection, int data_len, int* data) {
+int conn_read(conn* connection, int data_len, char* data) {
     
 }
 
