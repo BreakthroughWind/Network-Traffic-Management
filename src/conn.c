@@ -9,10 +9,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <./include/header.h>
-#include <./include/conn.h>
 
-#define PORT 8080;
+#include "../include/header.h"
+#include "../include/conn.h"
+
+#define PORT 8080
 
 /* Sort the recevied packets array */
 void sort_packets(packet* packet_array){
