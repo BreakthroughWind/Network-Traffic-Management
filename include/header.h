@@ -4,7 +4,6 @@ struct header {
     int seq_num;
     int length;
 };
-
 typedef struct {
     struct header;
     char* data;
@@ -17,5 +16,5 @@ packet *build(char* data, int count, int isLast) {
 }
 // receiver: parse packet function
 char* parse(packet* pkt) {
-    
+
 }

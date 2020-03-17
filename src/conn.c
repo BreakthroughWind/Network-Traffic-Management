@@ -32,7 +32,7 @@ void reorg(packet* packet_array){
 
 /* Build the packet */
 packet* build() {
-    
+
 }
 
 
@@ -61,7 +61,7 @@ int sender(int argc, int* argv[]) {
     remote_addr.sin_port = htons(PORT);
     remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
 
-    while () {
+    while(1) {
         
     }
 }
