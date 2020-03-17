@@ -30,6 +30,12 @@ void reorg(packet* packet_array){
 
 }
 
+/* Build the packet */
+packet* build() {
+    
+}
+
+
 //  Use passive probing to test the condition of the path 
 // double probe(pathInfo* path_array);
 
@@ -55,8 +61,8 @@ int sender(int argc, int* argv[]) {
     remote_addr.sin_port = htons(PORT);
     remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
 
-    while (1) {
-
+    while () {
+        
     }
 }
 
