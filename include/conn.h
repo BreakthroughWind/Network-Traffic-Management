@@ -13,10 +13,10 @@ struct conn {
     int* sockets;
 
     // mutex: lock and cond
-}
+};
 
 // initalization
-conn_init(struct conn) {
+int conn_init(struct conn) {
 
 }
 
