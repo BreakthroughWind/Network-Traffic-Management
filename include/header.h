@@ -17,5 +17,5 @@ packet *build(char* data, int count, int isLast) {
 }
 // receiver: parse packet function
 char* parse(packet* pkt) {
-
+    
 }
