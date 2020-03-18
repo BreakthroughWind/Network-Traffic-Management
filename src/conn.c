@@ -13,7 +13,6 @@
 #include "./include/conn.h"
 
 #define PORT 8080
-// #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
 void sort_packets(packet* packet_array){
@@ -78,18 +77,13 @@ int sender(int argc, int* argv[]) {
 
     char buff[packet_length];
     // We don't need to close the connection manually.
-    while(1) {
-        // Read data in
-        FILE *fd = fopen("../hello.txt", "r");
-        // split the data
-        // read the data
-        while (fget(buff, packet_length, fd) == NULL) {
-            packet *pktarr = split_data(buff);
-            // check the content of the buff
-            printf("content is %s", buff);
-            // use write system call to send data
-            write(conn_fd, buff, sizeof(buff));
-        }
+    FILE *fd = fopen("../hello.txt", "r");
+    while (fget(buff, packet_length, fd) != NULL) {
+        packet *pktarr = split_data(buff);
+        // check the content of the buff
+        printf("content is %s", buff);
+        // use write system call to send data
+        write(conn_fd, buff, sizeof(buff));
     }
 }
 
