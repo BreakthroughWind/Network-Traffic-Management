@@ -82,14 +82,14 @@ int sender(int argc, int* argv[]) {
         // Read data in
         FILE *fd = fopen("../hello.txt", "r");
         // split the data
-        // read the 
-        fget(buff, packet_length, fd);
-        packet *pktarr = split_data(buff);
-        // check the content of the buff
-        printf("content is %s", buff);
-
-        // use write system call to send data
-        write(conn_fd, buff, sizeof(buff));
+        // read the data
+        while (fget(buff, packet_length, fd) == NULL) {
+            packet *pktarr = split_data(buff);
+            // check the content of the buff
+            printf("content is %s", buff);
+            // use write system call to send data
+            write(conn_fd, buff, sizeof(buff));
+        }
     }
 }
 
