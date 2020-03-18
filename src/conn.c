@@ -9,10 +9,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <./include/header.h>
-#include <./include/conn.h>
+#include "./include/header.h"
+#include "./include/conn.h"
 
-#define PORT 8080;
+#define PORT 8080
+// #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
 void sort_packets(packet* packet_array){
@@ -20,7 +21,7 @@ void sort_packets(packet* packet_array){
 }
 
 /* Split the raw data input to multiple slices */
-void split_data(char* raw_data) {
+packet* split_data(char* raw_data) {
 
 }
 
@@ -41,12 +42,14 @@ packet* build() {
 
 // implement sender function
 int sender(int argc, int* argv[]) {
+    int packet_length = sizeof(packet);
     int conn_fd;
     // first, build the connection
     struct sockaddr_in remote_addr;
     // Declare the array for holding the IP, INET_ADDRSERLEN is the length of 
     char remote_ip[INET_ADDRSTRLEN];
     int remote_port;
+    char buff[packet_length];
 
     // AF_INET stands for IPv4 protocol, SOCK_STREAM stands for TCP, 0 stands for 0.
     if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -59,10 +62,34 @@ int sender(int argc, int* argv[]) {
     bzero(&remote_addr, sizeof(struct sockaddr_in));
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_port = htons(PORT);
+    // inet_addr convert the standard IPv4 dotted notation to integer value format
     remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
 
+    // Do the conversion
+    inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
+    remote_port = (int) ntohs(remote_addr.sin_port);
+
+    // Connect the socket to the remote server
+    if (connect(conn_fd, (struct sockaddr*)&remote_addr, sizeof(struct sockaddr) == -1)) {
+        perror("connect failed");
+        exit(1);
+    }
+    printf("connection to %s established", argv[1]);
+
+    char buff[packet_length];
+    // We don't need to close the connection manually.
     while(1) {
-        
+        // Read data in
+        FILE *fd = fopen("../hello.txt", "r");
+        // split the data
+        // read the 
+        fget(buff, packet_length, fd);
+        packet *pktarr = split_data(buff);
+        // check the content of the buff
+        printf("content is %s", buff);
+
+        // use write system call to send data
+        write(conn_fd, buff, sizeof(buff));
     }
 }
 
