@@ -16,22 +16,14 @@ typedef struct {
 } conn;
 
 // initalization
-int conn_init(conn* connection) {
-
-}
+int conn_init(conn* connection);
 
 // sender: send function
-int conn_send(conn* connection, int data_len, char* data) {
-
-}
+int conn_send(conn* connection, int data_len, char* data);
 
 // receiver: receive function
-int conn_read(conn* connection, int data_len, char* data) {
-    
-}
+int conn_read(conn* connection, int data_len, char* data);
 
 // termination
-int conn_close(conn* connection) {
-    
-}
+int conn_close(conn* connection);
 

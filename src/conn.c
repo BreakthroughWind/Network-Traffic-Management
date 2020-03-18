@@ -9,8 +9,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "./include/header.h"
-#include "./include/conn.h"
+#include "../include/header.h"
+#include "../include/conn.h"
 
 #define PORT 8080
 // #define PACKET_LENGTH 1500
@@ -32,8 +32,8 @@ void reorg(packet* packet_array){
 }
 
 /* Build the packet */
-packet* build() {
-
+packet *build(char* data, int count, int isLast) {
+    
 }
 
 

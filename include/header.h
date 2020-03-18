@@ -11,10 +11,7 @@ typedef struct {
 } packet;
 
 // sender: build packet function
-packet *build(char* data, int count, int isLast) {
-    
-}
-// receiver: parse packet function
-char* parse(packet* pkt) {
+packet *build(char* data, int count, int isLast);
 
-}
+// receiver: parse packet function
+char* parse(packet* pkt);
