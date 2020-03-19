@@ -90,7 +90,7 @@ int sender(int argc, int *argv[])
         for (int i = 0; (pktarr + i) != NULL; ++i)
         {
             // need to figure out what size this should be 
-            write(conn_fd, pktarr + i, sizeof(header) + );
+            write(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH);
         }
         // check the content of the buff
         printf("content is %s", buff);
