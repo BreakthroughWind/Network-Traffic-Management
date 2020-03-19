@@ -38,11 +38,15 @@ packet build(char *data, int count, int isLast)
 {
 }
 
+int main(int argc, char* argv[]) {
+    sender();
+}
+
 //  Use passive probing to test the condition of the path
 // double probe(pathInfo* path_array);
 
 // implement sender function
-int sender(int argc, int *argv[])
+int sender()
 {
     int packet_length = sizeof(packet);
     int conn_fd;
@@ -62,6 +66,7 @@ int sender(int argc, int *argv[])
 
     // Initialize the remote_addr specification
     bzero(&remote_addr, sizeof(struct sockaddr_in));
+
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_port = htons(PORT);
     // inet_addr convert the standard IPv4 dotted notation to integer value format
@@ -90,7 +95,7 @@ int sender(int argc, int *argv[])
         for (int i = 0; (pktarr + i) != NULL; ++i)
         {
             // need to figure out what size this should be 
-            write(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH);
+            send(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
         }
         // check the content of the buff
         printf("content is %s", buff);
