@@ -14,6 +14,7 @@
 
 #define PORT 8080
 #define BACKLOG 128
+#define DATA_LENGTH 20
 
 // #define PACKET_LENGTH 1500
 
@@ -88,8 +89,8 @@ int sender(int argc, int *argv[])
         packet *pktarr = split_data(temp);
         for (int i = 0; (pktarr + i) != NULL; ++i)
         {
-            // need to figure out what
-            write(conn_fd, pktarr + i, sizeof(packet));
+            // need to figure out what size this should be 
+            write(conn_fd, pktarr + i, sizeof(header) + );
         }
         // check the content of the buff
         printf("content is %s", buff);
