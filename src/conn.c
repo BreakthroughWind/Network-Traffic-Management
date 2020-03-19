@@ -78,16 +78,23 @@ int sender(int argc, int* argv[]) {
     char buff[packet_length];
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
-    while (fget(buff, packet_length, fd) != NULL) {
-        packet *pktarr = split_data(buff);
+    while (fgets(buff, packet_length, fd) != NULL) {
+        char *temp = malloc(stelen(buff) * sizeof(char));
+        strcpy(temp, buff);
+        packet *pktarr = split_data(temp);
+        for (int i = 0; (pktarr + i) != NULL; ++i) {
+            // need to figure out what
+            write(conn_fd, pktarr + i, sizeof(packet));
+        }
         // check the content of the buff
         printf("content is %s", buff);
-        // use write system call to send data
-        write(conn_fd, buff, sizeof(buff));
-    }
+    } 
+    fclose(fd);
 }
 
 // implement receiver function
+
+
 int receiver(int argc, int* argv[]) {
 
 }
