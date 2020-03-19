@@ -33,7 +33,7 @@ void reorg(packet *packet_array)
 }
 
 /* Build the packet */
-packet *build(char *data, int count, int isLast)
+packet build(char *data, int count, int isLast)
 {
 }
 
