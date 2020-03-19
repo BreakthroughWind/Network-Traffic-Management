@@ -18,37 +18,36 @@
 // #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
-void sort_packets(packet* packet_array){
-
+void sort_packets(packet *packet_array)
+{
 }
 
 /* Split the raw data input to multiple slices */
-packet* split_data(char* raw_data) {
-
+packet *split_data(char *raw_data)
+{
 }
 
-
 /* Reorganize the sorted packets array */
-void reorg(packet* packet_array){
-
+void reorg(packet *packet_array)
+{
 }
 
 /* Build the packet */
-packet *build(char* data, int count, int isLast) {
-    
+packet *build(char *data, int count, int isLast)
+{
 }
 
-
-//  Use passive probing to test the condition of the path 
+//  Use passive probing to test the condition of the path
 // double probe(pathInfo* path_array);
 
 // implement sender function
-int sender(int argc, int* argv[]) {
+int sender(int argc, int *argv[])
+{
     int packet_length = sizeof(packet);
     int conn_fd;
     // first, build the connection
     struct sockaddr_in remote_addr;
-    // Declare the array for holding the IP, INET_ADDRSERLEN is the length of 
+    // Declare the array for holding the IP, INET_ADDRSERLEN is the length of
     char remote_ip[INET_ADDRSTRLEN];
     int remote_port;
     char buff[packet_length];
@@ -69,10 +68,11 @@ int sender(int argc, int* argv[]) {
 
     // Do the conversion
     inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
-    remote_port = (int) ntohs(remote_addr.sin_port);
+    remote_port = (int)ntohs(remote_addr.sin_port);
 
     // Connect the socket to the remote server
-    if (connect(conn_fd, (struct sockaddr*)&remote_addr, sizeof(struct sockaddr) == -1)) {
+    if (connect(conn_fd, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr) == -1))
+    {
         perror("connect failed");
         exit(1);
     }
@@ -81,17 +81,19 @@ int sender(int argc, int* argv[]) {
     char buff[packet_length];
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
-    while (fgets(buff, packet_length, fd) != NULL) {
+    while (fgets(buff, packet_length, fd) != NULL)
+    {
         char *temp = malloc(stelen(buff) * sizeof(char));
         strcpy(temp, buff);
         packet *pktarr = split_data(temp);
-        for (int i = 0; (pktarr + i) != NULL; ++i) {
+        for (int i = 0; (pktarr + i) != NULL; ++i)
+        {
             // need to figure out what
             write(conn_fd, pktarr + i, sizeof(packet));
         }
         // check the content of the buff
         printf("content is %s", buff);
-    } 
+    }
     fclose(fd);
 }
 
@@ -104,9 +106,9 @@ struct connInfo
 
 // implement receiver function
 
-
-int receiver(int argc, int* argv[]) {
-   //connection info:
+int receiver(int argc, int *argv[])
+{
+    //connection info:
     int sin_size = sizeof(struct sockaddr_in);
 
     int listenFd;
@@ -121,22 +123,20 @@ int receiver(int argc, int* argv[]) {
     listenAddr.sin_addr.s_addr = inet_addr(argv[1]);
 
     inet_ntop(AF_INET, &(listenAddr.sin_addr), listenIp, INET_ADDRSTRLEN);
-    listenPort = (int) ntohs(listenAddr.sin_port);
+    listenPort = (int)ntohs(listenAddr.sin_port);
 
-    if (bind(listenFd, (struct sockaddr*) &listenAddr, sizeof(struct sockaddr)) == -1){
+    if (bind(listenFd, (struct sockaddr *)&listenAddr, sizeof(struct sockaddr)) == -1)
+    {
         perror("bind error");
         exit(1);
     }
 
-    if (listen(listenFd, BACKLOG) == -1){
+    if (listen(listenFd, BACKLOG) == -1)
+    {
         perror("listen error");
         exit(1);
     }
-    
+
     //successfully set up TCP connection:
     printf("Server: listen on %s:%d\n", listenIp, listenPort);
-
-
 }
-
-
