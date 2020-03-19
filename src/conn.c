@@ -13,6 +13,8 @@
 #include "./include/conn.h"
 
 #define PORT 8080
+#define BACKLOG 128
+
 // #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
