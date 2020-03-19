@@ -1,9 +1,9 @@
 
 /* Definition of packets */
-struct header {
+typedef struct  {
     int seq_num;
     int length;
-};
+} header;
 typedef struct {
     struct header;
     char* data;

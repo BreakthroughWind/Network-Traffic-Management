@@ -31,7 +31,7 @@ void reorg(packet* packet_array){
 }
 
 /* Build the packet */
-packet* build() {
+packet build(char* split_data) {
 
 }
 
@@ -84,7 +84,7 @@ int sender(int argc, int* argv[]) {
         packet *pktarr = split_data(temp);
         for (int i = 0; (pktarr + i) != NULL; ++i) {
             // need to figure out what
-            write(conn_fd, pktarr + i, sizeof(packet));
+            write(conn_fd, pktarr + i, sizeof(header) );
         }
         // check the content of the buff
         printf("content is %s", buff);
