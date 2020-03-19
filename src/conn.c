@@ -13,6 +13,8 @@
 #include "../include/conn.h"
 
 #define PORT 8080
+#define BACKLOG 128
+
 // #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
@@ -93,8 +95,45 @@ int sender(int argc, int* argv[]) {
     }
 }
 
+struct connInfo
+{
+    int connFd;
+    char remoteIp[INET_ADDRSTRLEN];
+    int remotePort;
+};
+
 // implement receiver function
 int receiver(int argc, int* argv[]) {
+   //connection info:
+    int sin_size = sizeof(struct sockaddr_in);
+
+    int listenFd;
+    struct sockaddr_in listenAddr;
+    char listenIp[INET_ADDRSTRLEN];
+    int listenPort;
+
+    //initialization:
+    bzero(&listenAddr, sizeof(struct sockaddr_in));
+    listenAddr.sin_family = AF_INET;
+    listenAddr.sin_port = htons(MYPORT);
+    listenAddr.sin_addr.s_addr = inet_addr(argv[1]);
+
+    inet_ntop(AF_INET, &(listenAddr.sin_addr), listenIp, INET_ADDRSTRLEN);
+    listenPort = (int) ntohs(listenAddr.sin_port);
+
+    if (bind(listenFd, (struct sockaddr*) &listenAddr, sizeof(struct sockaddr)) == -1){
+        perror("bind error");
+        exit(1);
+    }
+
+    if (listen(listenFd, BACKLOG) == -1){
+        perror("listen error");
+        exit(1);
+    }
+    
+    //successfully set up TCP connection:
+    printf("Server: listen on %s:%d\n", listenIp, listenPort);
+
 
 }
 
