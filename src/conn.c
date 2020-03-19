@@ -80,19 +80,19 @@ int sender(int argc, int* argv[]) {
 
     char buff[packet_length];
     // We don't need to close the connection manually.
-    while(1) {
-        // Read data in
-        FILE *fd = fopen("../hello.txt", "r");
-        // split the data
-        // read the data
-        while (fget(buff, packet_length, fd) == NULL) {
-            packet *pktarr = split_data(buff);
-            // check the content of the buff
-            printf("content is %s", buff);
-            // use write system call to send data
-            write(conn_fd, buff, sizeof(buff));
+    FILE *fd = fopen("../hello.txt", "r");
+    while (fgets(buff, packet_length, fd) != NULL) {
+        char *temp = malloc(stelen(buff) * sizeof(char));
+        strcpy(temp, buff);
+        packet *pktarr = split_data(temp);
+        for (int i = 0; (pktarr + i) != NULL; ++i) {
+            // need to figure out what
+            write(conn_fd, pktarr + i, sizeof(packet));
         }
-    }
+        // check the content of the buff
+        printf("content is %s", buff);
+    } 
+    fclose(fd);
 }
 
 struct connInfo
@@ -103,6 +103,8 @@ struct connInfo
 };
 
 // implement receiver function
+
+
 int receiver(int argc, int* argv[]) {
    //connection info:
     int sin_size = sizeof(struct sockaddr_in);
@@ -115,7 +117,7 @@ int receiver(int argc, int* argv[]) {
     //initialization:
     bzero(&listenAddr, sizeof(struct sockaddr_in));
     listenAddr.sin_family = AF_INET;
-    listenAddr.sin_port = htons(MYPORT);
+    listenAddr.sin_port = htons(PORT);
     listenAddr.sin_addr.s_addr = inet_addr(argv[1]);
 
     inet_ntop(AF_INET, &(listenAddr.sin_addr), listenIp, INET_ADDRSTRLEN);
