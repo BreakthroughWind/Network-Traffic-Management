@@ -5,7 +5,7 @@ typedef struct {
 } header;
 
 typedef struct {
-    struct header;
+    header header;
     char* data;
     int flag;
 } packet;
