@@ -17,21 +17,21 @@ typedef struct {
 
 // initalization
 int conn_init(conn* connection) {
-
+    return 0;
 }
 
 // sender: send function
 int conn_send(conn* connection, int data_len, char* data) {
-
+    return 0;
 }
 
 // receiver: receive function
 int conn_read(conn* connection, int data_len, char* data) {
-    
+    return 0;
 }
 
 // termination
 int conn_close(conn* connection) {
-    
+    return 0;
 }
 
