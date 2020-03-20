@@ -17,7 +17,7 @@ typedef struct
 typedef struct
 {
     char *flag;
-    size_t count;
+    size_t *count;
 } pair;
 
 // sender: build packet function
