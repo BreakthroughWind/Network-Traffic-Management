@@ -1,29 +1,29 @@
 /* MEng Project */
 
-typedef struct {
+typedef struct
+{
     // struct receiver_buffer;
-    int receive_size;
-    char* receive_buffer;
+    size_t receive_size;
+    char *receive_buffer;
 
-    int send_size;
-    char* send_buffer;
+    size_t send_size;
+    char *send_buffer;
 
     // tcp connections
-    int socket_num;
-    int* sockets;
+    size_t socket_num;
+    size_t *sockets;
 
     // mutex: lock and cond
 } conn;
 
 // initalization
-int conn_init(conn* connection);
+size_t conn_init(conn *connection);
 
 // sender: send function
-int conn_send(conn* connection, int data_len, char* data);
+size_t conn_send(conn *connection, size_t data_len, char *data, pair file);
 
 // receiver: receive function
-int conn_read(conn* connection, int data_len, char* data);
+size_t conn_read(conn *connection, size_t data_len, char *data);
 
 // termination
-int conn_close(conn* connection);
-
+size_t conn_close(conn *connection);
