@@ -1,1 +1,1 @@
-Hello, this is our project Network-Traffic-Control
+Hello MENG students, this is our project Network-Traffic-Control
