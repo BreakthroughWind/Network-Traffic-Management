@@ -20,7 +20,7 @@ typedef struct
 size_t conn_init(conn *connection);
 
 // sender: send function
-size_t conn_send(conn *connection, size_t data_len, char *data, pair file);
+size_t conn_send(conn *connection, size_t data_len, char *data);
 
 // receiver: receive function
 size_t conn_read(conn *connection, size_t data_len, char *data);
