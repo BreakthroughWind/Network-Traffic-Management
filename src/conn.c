@@ -89,7 +89,7 @@ int sender()
     FILE *fd = fopen("../hello.txt", "r");
     while (fgets(buff, packet_length, fd) != NULL)
     {
-        char *temp = malloc(stelen(buff) * sizeof(char));
+        char *temp = malloc(strlen(buff) * sizeof(char));
         strcpy(temp, buff);
         packet *pktarr = split_data(temp);
         for (int i = 0; (pktarr + i) != NULL; ++i)
