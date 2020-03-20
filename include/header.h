@@ -1,17 +1,27 @@
+#include <string.h>
+
 /* Definition of packets */
-typedef struct {
-    int seq_num;
-    int length;
+typedef struct
+{
+    char *flag;
+    size_t seq_num;
+    size_t length;
 } header;
 
-typedef struct {
+typedef struct
+{
     header header;
-    char* data;
-    int flag;
+    char *data;
 } packet;
 
+typedef struct
+{
+    char *flag;
+    size_t count;
+} pair;
+
 // sender: build packet function
-packet build(char* data, int count, int isLast);
+packet build(char *data, size_t count, size_t isLast);
 
 // receiver: parse packet function
-char* parse(packet* pkt);
+char *parse(packet *pkt);
