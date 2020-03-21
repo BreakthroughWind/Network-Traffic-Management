@@ -104,7 +104,7 @@ struct connInfo
 
 // implement receiver function
 
-int receiver(int argc, int *argv[])
+int receiver(int argc, char *argv[])
 {
     //connection info:
     int sin_size = sizeof(struct sockaddr_in);
@@ -155,6 +155,7 @@ int main() {
     char *argv[2];
     argv[0] = "conn.out";
     argv[1] = "127.0.0.1";
-    receiver(argc, argv[1]);
-    sender(argc, argv[1]);
+    printf("going to start");
+    receiver(argc, argv);
+    sender(argc, argv);
 }
