@@ -6,7 +6,7 @@
 /* Definition of packets */
 typedef struct
 {
-    char *file;
+    char file[DATA_LENGTH];
     bool isLast;
     size_t seq_num;
     size_t length;
@@ -25,7 +25,7 @@ typedef struct
 } pair;
 
 // sender: build packet function
-packet build(char *data, size_t count, size_t isLast);
+void build(char *data, size_t slices, packet *packets, pair file);
 
 // receiver: parse packet function
 char *parse(packet *pkt);
