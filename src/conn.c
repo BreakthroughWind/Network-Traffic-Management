@@ -145,4 +145,42 @@ int receiver(int argc, int *argv[])
 
     //successfully set up TCP connection:
     printf("Server: listen on %s:%d\n", listenIp, listenPort);
+    
+   //Create a socket to communicate with the client
+   struct connInfo* conn = (struct connInfo*) malloc(sizeof(struct connInfo));
+   struct sockaddr_in remoteAddr;
+
+   if ((conn->connFd = accept(listenFd, (struct sockaddr*)&remoteAddr, (socklen_t*) &sin_size)) == -1)
+   {
+       perror("accept");
+       exit(1);
+   }
+   inet_ntop(AF_INET, &(remoteAddr.sin_addr), conn->remoteIp, INET_ADDRSTRLEN);
+   conn->remotePort = (int) ntohs(remoteAddr.sin_port);
+
+#ifdef LOG_INFO
+   printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
+#endif
+
+  //read data:
+  char buf[20];
+  while(1)
+        {
+            int ret = read(client_socket, buf, 19);
+            if(ret == -1)
+            {
+                perror("read");
+                break;
+            }
+            if(ret == 0)
+            {
+                break;
+            }
+            printf("%s\n", buf);
+            write(client_socket, buf, ret);
+ }
+#ifdef LOG_INFO
+    printf("Server: totally close\n");
+#endif
+    close(listenFd);
 }
