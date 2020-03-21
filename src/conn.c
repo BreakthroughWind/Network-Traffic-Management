@@ -14,34 +14,38 @@
 #include "../include/conn.h"
 
 #define PORT 8080
+#define BACKLOG 128
+#define DATA_LENGTH 20
+
+// #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
-void sort_packets(packet* packet_array){
-
+void sort_packets(packet *packet_array)
+{
 }
 
 /* Split the raw data input to multiple slices */
-packet* split_data(char* raw_data) {
+packet* split_data(char* raw_data) 
+{
     return NULL;
 }
 
-
 /* Reorganize the sorted packets array */
-void reorg(packet* packet_array){
+void reorg(packet* packet_array)
+{
     
 }
 
-
-//  Use passive probing to test the condition of the path 
+//  Use passive probing to test the condition of the path
 // double probe(pathInfo* path_array);
 
 // implement sender function
 int sender(int argc, char* argv[]) {
-    int packet_length = sizeof(packet);
+    int packet_length = 1000;
     int conn_fd;
     // first, build the connection
     struct sockaddr_in remote_addr;
-    // Declare the array for holding the IP, INET_ADDRSERLEN is the length of 
+    // Declare the array for holding the IP, INET_ADDRSERLEN is the length of
     char remote_ip[INET_ADDRSTRLEN];
     int remote_port;
 
@@ -54,6 +58,7 @@ int sender(int argc, char* argv[]) {
 
     // Initialize the remote_addr specification
     bzero(&remote_addr, sizeof(struct sockaddr_in));
+
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_port = htons(PORT);
     // inet_addr convert the standard IPv4 dotted notation to integer value format
@@ -61,10 +66,11 @@ int sender(int argc, char* argv[]) {
 
     // Do the conversion
     inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
-    remote_port = (int) ntohs(remote_addr.sin_port);
+    remote_port = (int)ntohs(remote_addr.sin_port);
 
     // Connect the socket to the remote server
-    if (connect(conn_fd, (struct sockaddr*)&remote_addr, sizeof(struct sockaddr) == -1)) {
+    if (connect(conn_fd, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr) == -1))
+    {
         perror("connect failed");
         exit(1);
     }
@@ -73,30 +79,82 @@ int sender(int argc, char* argv[]) {
     char buff[packet_length];
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
-    while (fgets(buff, packet_length, fd) != NULL) {
+    while (fgets(buff, packet_length, fd) != NULL)
+    {
         char *temp = malloc(strlen(buff) * sizeof(char));
         strcpy(temp, buff);
         packet *pktarr = split_data(temp);
-        for (int i = 0; (pktarr + i) != NULL; ++i) {
-            // need to figure out what
-            write(conn_fd, pktarr + i, sizeof(header));
+        for (int i = 0; (pktarr + i) != NULL; ++i)
+        {
+            // need to figure out what size this should be 
+            send(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
         }
-    } 
+        // check the content of the buff
+        printf("content is %s", buff);
+    }
     fclose(fd);
 }
 
+struct connInfo
+{
+    int connFd;
+    char remoteIp[INET_ADDRSTRLEN];
+    int remotePort;
+};
+
 // implement receiver function
 
+int receiver(int argc, int *argv[])
+{
+    //connection info:
+    int sin_size = sizeof(struct sockaddr_in);
 
-int receiver(int argc, int* argv[]) {
-    return 0;
+    int listenFd;
+    struct sockaddr_in listenAddr;
+    char listenIp[INET_ADDRSTRLEN];
+    int listenPort;
+
+    //initialization:
+    bzero(&listenAddr, sizeof(struct sockaddr_in));
+    listenAddr.sin_family = AF_INET;
+    listenAddr.sin_port = htons(PORT);
+    listenAddr.sin_addr.s_addr = inet_addr(argv[1]);
+
+    inet_ntop(AF_INET, &(listenAddr.sin_addr), listenIp, INET_ADDRSTRLEN);
+    listenPort = (int)ntohs(listenAddr.sin_port);
+
+    if (bind(listenFd, (struct sockaddr *)&listenAddr, sizeof(struct sockaddr)) == -1)
+    {
+        perror("bind error");
+        exit(1);
+    }
+
+    if (listen(listenFd, BACKLOG) == -1)
+    {
+        perror("listen error");
+        exit(1);
+    }
+
+    char str[1000];
+    while (1) 
+    {   
+        if (recv(listenFd, str, 1000, 0) != 0) 
+        {   
+            // printf("%s", str);
+            break;
+        }
+    }
+
+    //successfully set up TCP connection:
+    printf("Server: listen on %s:%d\n", listenIp, listenPort);
 }
+    
 
 int main() {
+    int argc = 2;
     char *argv[2];
-    argv[0] = "name of the file";
+    argv[0] = "conn.out";
     argv[1] = "127.0.0.1";
-    sender(2, argv);
-    return 0;
+    receiver(argc, argv[1]);
+    sender(argc, argv[1]);
 }
-
