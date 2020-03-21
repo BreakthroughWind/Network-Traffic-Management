@@ -166,7 +166,7 @@ int receiver(int argc, int *argv[])
   char buf[20];
   while(1)
         {
-            int ret = read(client_socket, buf, 19);
+            int ret = read(conn->connFd, buf, 19);
             if(ret == -1)
             {
                 perror("read");
@@ -177,7 +177,7 @@ int receiver(int argc, int *argv[])
                 break;
             }
             printf("%s\n", buf);
-            write(client_socket, buf, ret);
+            write(conn->connFd, buf, ret);
  }
 #ifdef LOG_INFO
     printf("Server: totally close\n");
