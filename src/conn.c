@@ -46,8 +46,13 @@ int main(int argc, char* argv[]) {
 // double probe(pathInfo* path_array);
 
 // implement sender function
+<<<<<<< HEAD
 int sender()
 {
+=======
+//yiming
+int sender(int argc, int* argv[]) {
+>>>>>>> 844cd008dc96eafc68d1b66453fe3014cba22d85
     int packet_length = sizeof(packet);
     int conn_fd;
     // first, build the connection
