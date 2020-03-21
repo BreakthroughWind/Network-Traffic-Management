@@ -1,9 +1,13 @@
 #include <string.h>
+#include <stdbool.h>
+
+#define DATA_LENGTH 20
 
 /* Definition of packets */
 typedef struct
 {
-    char *flag;
+    char *file;
+    bool isLast;
     size_t seq_num;
     size_t length;
 } header;
@@ -11,7 +15,7 @@ typedef struct
 typedef struct
 {
     header header;
-    char *data;
+    char data[DATA_LENGTH];
 } packet;
 
 typedef struct
