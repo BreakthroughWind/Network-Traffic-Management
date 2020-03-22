@@ -112,7 +112,7 @@ struct connInfo
 
 // implement receiver function
 
-int receiver(int argc, int *argv[])
+int receiver(int argc, char *argv[])
 {
     //connection info:
     int sin_size = sizeof(struct sockaddr_in);
