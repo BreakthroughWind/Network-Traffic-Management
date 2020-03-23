@@ -75,16 +75,11 @@ void build(char *data, size_t slices, packet *packets, pair file)
     }
 }
 
-int main(int argc, char *argv[])
-{
-    sender();
-}
-
 //  Use passive probing to test the condition of the path
 // double probe(pathInfo* path_array);
 
 // implement sender function
-int sender()
+int sender(int argc, char *argv[])
 {
     int packet_length = sizeof(packet);
     int conn_fd;
@@ -94,6 +89,12 @@ int sender()
     char remote_ip[INET_ADDRSTRLEN];
     int remote_port;
     char buff[packet_length];
+
+    if (argc != 2)
+    {
+        fprintf(stderr,"usage: client hostname\n");
+        exit(1);
+    }
 
     // AF_INET stands for IPv4 protocol, SOCK_STREAM stands for TCP, 0 stands for 0.
     if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -117,12 +118,14 @@ int sender()
     // Connect the socket to the remote server
     if (connect(conn_fd, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr) == -1))
     {
-        perror("connect failed");
+        printf("%d", conn_fd);
+        printf("%d", remote_addr);
+
+        perror("connect fail");
         exit(1);
     }
     // printf("connection to %s established", argv[1]);
 
-    char buff[packet_length];
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
     pair pair = {"hello.txt", 0};
@@ -142,90 +145,12 @@ int sender()
     fclose(fd);
 }
 
-struct connInfo
+int main() 
 {
-    int connFd;
-    char remoteIp[INET_ADDRSTRLEN];
-    int remotePort;
-};
-
-// implement receiver function
-
-int receiver(int argc, char *argv[])
-{
-    //connection info:
-    int sin_size = sizeof(struct sockaddr_in);
-
-    int listenFd;
-    struct sockaddr_in listenAddr;
-    char listenIp[INET_ADDRSTRLEN];
-    int listenPort;
-
-    if ((listenFd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-    {
-        perror("socket");
-        exit(1);
-    }
-
-    //initialization:
-    bzero(&listenAddr, sizeof(struct sockaddr_in));
-    listenAddr.sin_family = AF_INET;
-    listenAddr.sin_port = htons(PORT);
-    listenAddr.sin_addr.s_addr = inet_addr(argv[1]);
-
-    inet_ntop(AF_INET, &(listenAddr.sin_addr), listenIp, INET_ADDRSTRLEN);
-    listenPort = (int)ntohs(listenAddr.sin_port);
-
-    if (bind(listenFd, (struct sockaddr *)&listenAddr, sizeof(struct sockaddr)) == -1)
-    {
-        perror("bind error");
-        exit(1);
-    }
-
-    if (listen(listenFd, BACKLOG) == -1)
-    {
-        perror("listen error");
-        exit(1);
-    }
-
-    //successfully set up TCP connection:
-    printf("Server: listen on %s:%d\n", listenIp, listenPort);
-    
-   //Create a socket to communicate with the client
-   struct connInfo* conn = (struct connInfo*) malloc(sizeof(struct connInfo));
-   struct sockaddr_in remoteAddr;
-
-   if ((conn->connFd = accept(listenFd, (struct sockaddr*)&remoteAddr, (socklen_t*) &sin_size)) == -1)
-   {
-       perror("accept");
-       exit(1);
-   }
-   inet_ntop(AF_INET, &(remoteAddr.sin_addr), conn->remoteIp, INET_ADDRSTRLEN);
-   conn->remotePort = (int) ntohs(remoteAddr.sin_port);
-
-#ifdef LOG_INFO
-   printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
-#endif
-
-  //read data:
-  char buf[20];
-  while(1)
-        {
-            int ret = read(conn->connFd, buf, 19);
-            if(ret == -1)
-            {
-                perror("read");
-                break;
-            }
-            if(ret == 0)
-            {
-                break;
-            }
-            printf("%s\n", buf);
-            write(conn->connFd, buf, ret);
- }
-#ifdef LOG_INFO
-    printf("Server: totally close\n");
-#endif
-    close(listenFd);
+    char *argv[2];
+    int argc = 2;
+    argv[0] = "a";
+    argv[1] = "127.0.0.1";
+    sender(argc, argv);
+    return 0;
 }
