@@ -90,6 +90,8 @@ int sender(int argc, char *argv[])
     int remote_port;
     char buff[packet_length];
 
+
+
     if (argc != 2)
     {
         fprintf(stderr,"usage: client hostname\n");
@@ -108,23 +110,18 @@ int sender(int argc, char *argv[])
 
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_port = htons(PORT);
-    // inet_addr convert the standard IPv4 dotted notation to integer value format
-    // remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
+    remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
 
     // Do the conversion
     inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
     remote_port = (int)ntohs(remote_addr.sin_port);
 
-    // Connect the socket to the remote server
     if (connect(conn_fd, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr) == -1))
     {
         printf("%d", conn_fd);
-        printf("%d", remote_addr);
-
         perror("connect fail");
         exit(1);
     }
-    // printf("connection to %s established", argv[1]);
 
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
@@ -149,7 +146,7 @@ int main()
 {
     char *argv[2];
     int argc = 2;
-    argv[0] = "a";
+    argv[0] = " ";
     argv[1] = "127.0.0.1";
     sender(argc, argv);
     return 0;
