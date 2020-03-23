@@ -38,15 +38,11 @@ packet build(char *data, int count, int isLast)
 {
 }
 
-int main(int argc, char* argv[]) {
-    sender();
-}
-
 //  Use passive probing to test the condition of the path
 // double probe(pathInfo* path_array);
 
 // implement sender function
-int sender()
+int sender(int argc, char *argv[])
 {
     int packet_length = sizeof(packet);
     int conn_fd;
@@ -84,7 +80,6 @@ int sender()
     }
     printf("connection to %s established", argv[1]);
 
-    char buff[packet_length];
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
     while (fgets(buff, packet_length, fd) != NULL)
@@ -112,7 +107,7 @@ struct connInfo
 
 // implement receiver function
 
-int receiver(int argc, int *argv[])
+int receiver(int argc, char *argv[])
 {
     //connection info:
     int sin_size = sizeof(struct sockaddr_in);
@@ -183,4 +178,15 @@ int receiver(int argc, int *argv[])
     printf("Server: totally close\n");
 #endif
     close(listenFd);
+}
+
+int main() {
+    int argc = 2;
+    char *argv[2];
+    argv[0] = "conn.out";
+    argv[1] = "127.0.0.1";
+    printf("going to start");
+    receiver(argc, argv); 
+    sender(argc, argv);
+    return 0;
 }
