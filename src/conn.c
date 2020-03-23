@@ -140,7 +140,6 @@ int receiver(int argc, char *argv[])
     {   
         if (recv(listenFd, str, 1000, 0) != 0) 
         {   
-            // printf("%s", str);
             break;
         }
     }
@@ -156,6 +155,6 @@ int main() {
     argv[0] = "conn.out";
     argv[1] = "127.0.0.1";
     printf("going to start");
-    receiver(argc, argv);
+    receiver(argc, argv); 
     sender(argc, argv);
 }
