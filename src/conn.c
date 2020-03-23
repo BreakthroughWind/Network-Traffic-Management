@@ -24,8 +24,14 @@ void sort_packets(packet *packet_array)
 }
 
 /* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data)
+packet *split_data(char *raw_data, pair file)
 {
+    // calculate the packet number given raw_data
+    size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
+    packet *packets = malloc(slices * sizeof(packet));
+    // build each slice data into packets
+    build(raw_data, slices, packets, file);
+    return packets;
 }
 
 /* Reorganize the sorted packets array */
@@ -34,11 +40,43 @@ void reorg(packet *packet_array)
 }
 
 /* Build the packet */
-packet build(char *data, int count, int isLast)
+void build(char *data, size_t slices, packet *packets, pair file)
 {
+    size_t data_len = strlen(data);
+
+    if (slices == 1)
+    {
+        // update packet -> header -> flag
+        strcpy(packets[0].header.file, file.flag);
+        // update packet -> header -> seq_num
+        packets[0].header.seq_num = *file.count;
+        (*file.count) += 1;
+        // update packet -> header -> length
+        packets[0].header.length = data_len;
+
+        // update packet -> data
+        strncpy(packets[0].data, data + 0 * DATA_LENGTH, packets[0].header.length);
+    }
+    else
+    {
+        for (size_t i = 0; i < slices; i++)
+        {
+            // update packet -> header -> flag
+            strcpy(packets[i].header.file, file.flag);
+            // update packet -> header -> seq_num
+            packets[i].header.seq_num = *file.count;
+            (*file.count) += 1;
+            // update packet -> header -> length
+            packets[i].header.length = (i != slices - 1) ? DATA_LENGTH : data_len % DATA_LENGTH;
+
+            // update packet -> data
+            strncpy(packets[i].data, data + DATA_LENGTH * i, packets[i].header.length);
+        }
+    }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     sender();
 }
 
@@ -70,7 +108,7 @@ int sender()
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_port = htons(PORT);
     // inet_addr convert the standard IPv4 dotted notation to integer value format
-    remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
+    // remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
 
     // Do the conversion
     inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
@@ -82,19 +120,20 @@ int sender()
         perror("connect failed");
         exit(1);
     }
-    printf("connection to %s established", argv[1]);
+    // printf("connection to %s established", argv[1]);
 
     char buff[packet_length];
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
+    pair pair = {"hello.txt", 0};
     while (fgets(buff, packet_length, fd) != NULL)
     {
         char *temp = malloc(strlen(buff) * sizeof(char));
         strcpy(temp, buff);
-        packet *pktarr = split_data(temp);
+        packet *pktarr = split_data(temp, pair);
         for (int i = 0; (pktarr + i) != NULL; ++i)
         {
-            // need to figure out what size this should be 
+            // need to figure out what size this should be
             send(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
         }
         // check the content of the buff

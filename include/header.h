@@ -1,17 +1,31 @@
+#include <string.h>
+#include <stdbool.h>
+
+#define DATA_LENGTH 20
+
 /* Definition of packets */
-typedef struct {
-    int seq_num;
-    int length;
+typedef struct
+{
+    char file[DATA_LENGTH];
+    bool isLast;
+    size_t seq_num;
+    size_t length;
 } header;
 
-typedef struct {
-    struct header;
-    char* data;
-    int flag;
+typedef struct
+{
+    header header;
+    char data[DATA_LENGTH];
 } packet;
 
+typedef struct
+{
+    char *flag;
+    size_t *count;
+} pair;
+
 // sender: build packet function
-packet build(char* data, int count, int isLast);
+void build(char *data, size_t slices, packet *packets, pair file);
 
 // receiver: parse packet function
-char* parse(packet* pkt);
+char *parse(packet *pkt);
