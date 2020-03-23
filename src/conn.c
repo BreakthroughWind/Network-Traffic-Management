@@ -117,6 +117,12 @@ int receiver(int argc, char *argv[])
     char listenIp[INET_ADDRSTRLEN];
     int listenPort;
 
+    if ((listenFd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    {
+        perror("socket");
+        exit(1);
+    }
+
     //initialization:
     bzero(&listenAddr, sizeof(struct sockaddr_in));
     listenAddr.sin_family = AF_INET;
