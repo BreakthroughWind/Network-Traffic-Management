@@ -123,11 +123,18 @@ int main(int argc, char *argv[])
         // segmentation fault below
         pktarr = split_data(temp, &file);
 
-        while (pktarr != NULL)
+        // for (size_t i = 0; i < 4; i++)
         {
-            printf("%s\n", pktarr->data);
+            printf("%s", pktarr->data);
             pktarr++;
         }
+
+        while (pktarr != NULL)
+        {
+            printf("%s", pktarr->data);
+            pktarr++;
+        }
+
         // for (int i = 0; pktarr != NULL; ++i)
         // {
         //     send(connFd, pktarr++, sizeof(packet) + DATA_LENGTH, 0);
