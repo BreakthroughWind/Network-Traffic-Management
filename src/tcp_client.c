@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
     char remoteIp[INET_ADDRSTRLEN];
     int remotePort;
 
-    // printf("argc = %d\n", argc);
 
     if (argc != 2)
     {
@@ -119,12 +118,13 @@ int main(int argc, char *argv[])
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
         // segmentation fault below
+        // printf("buff is %s\n", buff);
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
         for (int i = 0; i < slices; ++i)
         {
-            printf("%s", pktarr->data);
-            send(connFd, pktarr++, sizeof(packet) + DATA_LENGTH, 0);
+            // printf("packet %d is %s\n", i ,pktarr->data);
+            send(connFd, pktarr++, sizeof(packet), 0);
         }
         free(temp);
     }
