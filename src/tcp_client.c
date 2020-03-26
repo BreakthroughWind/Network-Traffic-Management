@@ -75,79 +75,56 @@ void build(char *data, size_t slices, packet *packets, pair file)
     }
 }
 
-//  Use passive probing to test the condition of the path
-// double probe(pathInfo* path_array);
-
-// implement sender function
-int sender(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    int packet_length = sizeof(packet);
-    int conn_fd;
-    // first, build the connection
-    struct sockaddr_in remote_addr;
-    // Declare the array for holding the IP, INET_ADDRSERLEN is the length of
-    char remote_ip[INET_ADDRSTRLEN];
-    int remote_port;
-    char buff[packet_length];
-
-
+    int connFd;
+    struct sockaddr_in remoteAddr;
+    char remoteIp[INET_ADDRSTRLEN];
+    int remotePort;
 
     if (argc != 2)
     {
-        fprintf(stderr,"usage: client hostname\n");
+        printf(stderr,"usage: client hostname\n");
         exit(1);
     }
 
-    // AF_INET stands for IPv4 protocol, SOCK_STREAM stands for TCP, 0 stands for 0.
-    if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    if ((connFd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         perror("socket");
         exit(1);
     }
+    
+    bzero(&remoteAddr, sizeof(struct sockaddr_in));
+    remoteAddr.sin_family = AF_INET;
+    remoteAddr.sin_port = htons(PORT);
+    remoteAddr.sin_addr.s_addr = inet_addr(argv[1]);
+    
+    inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
+    remotePort = (int) ntohs(remoteAddr.sin_port);
 
-    // Initialize the remote_addr specification
-    bzero(&remote_addr, sizeof(struct sockaddr_in));
-
-    remote_addr.sin_family = AF_INET;
-    remote_addr.sin_port = htons(PORT);
-    remote_addr.sin_addr.s_addr = inet_addr(argv[1]);
-
-    // Do the conversion
-    inet_ntop(AF_INET, &(remote_addr.sin_addr), remote_ip, INET_ADDRSTRLEN);
-    remote_port = (int)ntohs(remote_addr.sin_port);
-
-    if (connect(conn_fd, (struct sockaddr *)&remote_addr, sizeof(struct sockaddr) == -1))
+    if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
     {
-        printf("%d", conn_fd);
-        perror("connect fail");
+        perror("connect");
         exit(1);
     }
 
-    // We don't need to close the connection manually.
+    int packet_length = sizeof(packet);
+    char buff[packet_length];
+
     FILE *fd = fopen("../hello.txt", "r");
     pair pair = {"hello.txt", 0};
     while (fgets(buff, packet_length, fd) != NULL)
     {
-        char *temp = malloc(strlen(buff) * sizeof(char));
+        int size = strlen(buff) * sizeof(char);
+        char *temp  = malloc(strlen(buff) * sizeof(char));
         strcpy(temp, buff);
         packet *pktarr = split_data(temp, pair);
         for (int i = 0; (pktarr + i) != NULL; ++i)
         {
-            // need to figure out what size this should be
-            send(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
+            send(connFd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
         }
-        // check the content of the buff
         printf("content is %s", buff);
     }
     fclose(fd);
-}
-
-int main() 
-{
-    char *argv[2];
-    int argc = 2;
-    argv[0] = " ";
-    argv[1] = "127.0.0.1";
-    sender(argc, argv);
     return 0;
 }
