@@ -20,7 +20,7 @@ typedef struct
 
 typedef struct
 {
-    char *flag;
+    char *file_name;
     size_t *count;
 } pair;
 
