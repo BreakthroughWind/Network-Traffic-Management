@@ -31,7 +31,7 @@ void build(char *data, size_t slices, packet *packets, pair *file)
     if (slices == 1)
     {
         // update packet -> header -> flag
-        strcpy(packets[0].header.file, file->flag);
+        strcpy(packets[0].header.file, file->file_name);
         // update packet -> header -> seq_num
         packets[0].header.seq_num = file->count;
         file->count += 1;
@@ -46,7 +46,7 @@ void build(char *data, size_t slices, packet *packets, pair *file)
         for (size_t i = 0; i < slices; i++)
         {
             // update packet -> header -> flag
-            strcpy(packets[i].header.file, file->flag);
+            strcpy(packets[i].header.file, file->file_name);
             // update packet -> header -> seq_num
             packets[i].header.seq_num = file->count;
             file->count += 1;
