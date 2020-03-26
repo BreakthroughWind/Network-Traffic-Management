@@ -20,7 +20,7 @@ typedef struct
 
 typedef struct
 {
-    char flag[DATA_LENGTH];
+    char file_name[DATA_LENGTH];
     size_t count;
 } pair;
 
