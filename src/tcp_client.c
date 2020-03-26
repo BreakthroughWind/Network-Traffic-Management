@@ -4,7 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-
+#include <math.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -24,17 +24,17 @@ void sort_packets(packet *packet_array)
 }
 
 /* Build the packet */
-void build(char *data, size_t slices, packet *packets, pair file)
+void build(char *data, size_t slices, packet *packets, pair *file)
 {
     size_t data_len = strlen(data);
 
     if (slices == 1)
     {
         // update packet -> header -> flag
-        strcpy(packets[0].header.file, file.flag);
+        strcpy(packets[0].header.file, file->flag);
         // update packet -> header -> seq_num
-        packets[0].header.seq_num = *file.count;
-        (*file.count) += 1;
+        packets[0].header.seq_num = file->count;
+        file->count += 1;
         // update packet -> header -> length
         packets[0].header.length = data_len;
 
@@ -46,10 +46,10 @@ void build(char *data, size_t slices, packet *packets, pair file)
         for (size_t i = 0; i < slices; i++)
         {
             // update packet -> header -> flag
-            strcpy(packets[i].header.file, file.flag);
+            strcpy(packets[i].header.file, file->flag);
             // update packet -> header -> seq_num
-            packets[i].header.seq_num = *file.count;
-            (*file.count) += 1;
+            packets[i].header.seq_num = file->count;
+            file->count += 1;
             // update packet -> header -> length
             packets[i].header.length = (i != slices - 1) ? DATA_LENGTH : data_len % DATA_LENGTH;
 
@@ -60,7 +60,7 @@ void build(char *data, size_t slices, packet *packets, pair file)
 }
 
 /* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data, pair file)
+packet *split_data(char *raw_data, pair *file)
 {
     // calculate the packet number given raw_data
     size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
@@ -82,9 +82,11 @@ int main(int argc, char *argv[])
     char remoteIp[INET_ADDRSTRLEN];
     int remotePort;
 
+    // printf("argc = %d\n", argc);
+
     if (argc != 2)
     {
-        printf(stderr,"usage: client hostname\n");
+        printf(stderr, "usage: client hostname\n");
         exit(1);
     }
 
@@ -93,38 +95,44 @@ int main(int argc, char *argv[])
         perror("socket");
         exit(1);
     }
-    
+
     bzero(&remoteAddr, sizeof(struct sockaddr_in));
     remoteAddr.sin_family = AF_INET;
     remoteAddr.sin_port = htons(PORT);
     remoteAddr.sin_addr.s_addr = inet_addr(argv[1]);
-    
-    inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
-    remotePort = (int) ntohs(remoteAddr.sin_port);
 
-    if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
-    {
-        perror("connect");
-        exit(1);
-    }
+    inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
+    remotePort = (int)ntohs(remoteAddr.sin_port);
+
+    // if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
+    // {
+    //     perror("connect");
+    //     exit(1);
+    // }
 
     int packet_length = sizeof(packet);
     char buff[packet_length];
     FILE *fd = fopen("../hello.txt", "r");
-    pair pair = {"hello.txt", 0};
+    pair file = {"hello.txt", 0};
     packet *pktarr = NULL;
     while (fgets(buff, packet_length, fd) != NULL)
     {
         int size = strlen(buff);
-        char *temp  = malloc(strlen(buff));
+        char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
         // segmentation fault below
-        pktarr = split_data(temp, pair);
-        for (int i = 0; (pktarr + i) != NULL; ++i)
+        pktarr = split_data(temp, &file);
+
+        while (pktarr != NULL)
         {
-            send(connFd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
+            printf("%s\n", pktarr->data);
+            pktarr++;
         }
-        printf("content is %s\n", buff);
+        // for (int i = 0; pktarr != NULL; ++i)
+        // {
+        //     send(connFd, pktarr++, sizeof(packet) + DATA_LENGTH, 0);
+        // }
+        // printf("content is %s\n", buff);
     }
     fclose(fd);
     return 0;
