@@ -23,22 +23,6 @@ void sort_packets(packet *packet_array)
 {
 }
 
-/* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data, pair file)
-{
-    // calculate the packet number given raw_data
-    size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
-    packet *packets = malloc(slices * sizeof(packet));
-    // build each slice data into packets
-    build(raw_data, slices, packets, file);
-    return packets;
-}
-
-/* Reorganize the sorted packets array */
-void reorg(packet *packet_array)
-{
-}
-
 /* Build the packet */
 void build(char *data, size_t slices, packet *packets, pair file)
 {
@@ -73,6 +57,22 @@ void build(char *data, size_t slices, packet *packets, pair file)
             strncpy(packets[i].data, data + DATA_LENGTH * i, packets[i].header.length);
         }
     }
+}
+
+/* Split the raw data input to multiple slices */
+packet *split_data(char *raw_data, pair file)
+{
+    // calculate the packet number given raw_data
+    size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
+    packet *packets = malloc(slices * sizeof(packet));
+    // build each slice data into packets
+    build(raw_data, slices, packets, file);
+    return packets;
+}
+
+/* Reorganize the sorted packets array */
+void reorg(packet *packet_array)
+{
 }
 
 int main(int argc, char *argv[])
@@ -110,20 +110,21 @@ int main(int argc, char *argv[])
 
     int packet_length = sizeof(packet);
     char buff[packet_length];
-
     FILE *fd = fopen("../hello.txt", "r");
     pair pair = {"hello.txt", 0};
+    packet *pktarr = NULL;
     while (fgets(buff, packet_length, fd) != NULL)
     {
-        int size = strlen(buff) * sizeof(char);
-        char *temp  = malloc(strlen(buff) * sizeof(char));
+        int size = strlen(buff);
+        char *temp  = malloc(strlen(buff));
         strcpy(temp, buff);
-        packet *pktarr = split_data(temp, pair);
+        // segmentation fault below
+        pktarr = split_data(temp, pair);
         for (int i = 0; (pktarr + i) != NULL; ++i)
         {
             send(connFd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
         }
-        printf("content is %s", buff);
+        printf("content is %s\n", buff);
     }
     fclose(fd);
     return 0;
