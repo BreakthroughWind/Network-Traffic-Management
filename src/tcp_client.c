@@ -60,10 +60,8 @@ void build(char *data, size_t slices, packet *packets, pair *file)
 }
 
 /* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data, pair *file)
+packet *split_data(char *raw_data, pair *file, size_t slices)
 {
-    // calculate the packet number given raw_data
-    size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
     packet *packets = malloc(slices * sizeof(packet));
     // build each slice data into packets
     build(raw_data, slices, packets, file);
@@ -121,19 +119,14 @@ int main(int argc, char *argv[])
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
         // segmentation fault below
-        pktarr = split_data(temp, &file);
-
-        // for (size_t i = 0; i < 4; i++)
+        size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
+        pktarr = split_data(temp, &file, slices);
+        for (size_t i = 0; i < slices; i++)
         {
             printf("%s", pktarr->data);
             pktarr++;
         }
 
-        while (pktarr != NULL)
-        {
-            printf("%s", pktarr->data);
-            pktarr++;
-        }
 
         // for (int i = 0; pktarr != NULL; ++i)
         // {
