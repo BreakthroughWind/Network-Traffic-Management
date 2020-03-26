@@ -121,18 +121,12 @@ int main(int argc, char *argv[])
         // segmentation fault below
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
-        for (size_t i = 0; i < slices; i++)
+        for (int i = 0; i < slices; ++i)
         {
             printf("%s", pktarr->data);
-            pktarr++;
+            send(connFd, pktarr++, sizeof(packet) + DATA_LENGTH, 0);
         }
-
-
-        // for (int i = 0; pktarr != NULL; ++i)
-        // {
-        //     send(connFd, pktarr++, sizeof(packet) + DATA_LENGTH, 0);
-        // }
-        // printf("content is %s\n", buff);
+        free(temp);
     }
     fclose(fd);
     return 0;
