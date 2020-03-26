@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
     char remoteIp[INET_ADDRSTRLEN];
     int remotePort;
 
-
     if (argc != 2)
     {
         printf(stderr, "usage: client hostname\n");
@@ -101,11 +100,11 @@ int main(int argc, char *argv[])
     inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
     remotePort = (int)ntohs(remoteAddr.sin_port);
 
-    if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
-    {
-        perror("connect");
-        exit(1);
-    }
+    // if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
+    // {
+    //     perror("connect");
+    //     exit(1);
+    // }
 
     int packet_length = sizeof(packet);
     char buff[packet_length];
@@ -118,13 +117,14 @@ int main(int argc, char *argv[])
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
         // segmentation fault below
-        // printf("buff is %s\n", buff);
+        printf("buff is %s\n", buff);
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
         for (int i = 0; i < slices; ++i)
         {
-            // printf("packet %d is %s\n", i ,pktarr->data);
-            send(connFd, pktarr++, sizeof(packet), 0);
+            printf("packet %d is %s\n", i, pktarr->data);
+            pktarr++;
+            // send(connFd, pktarr++, sizeof(packet), 0);
         }
         free(temp);
     }
