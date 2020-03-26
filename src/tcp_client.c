@@ -108,24 +108,30 @@ int main(int argc, char *argv[])
 
     int packet_length = sizeof(packet);
     char buff[packet_length];
+
     FILE *fd = fopen("../hello.txt", "r");
     pair file = {"hello.txt", 0};
+    
     packet *pktarr = NULL;
+    
     while (fgets(buff, packet_length, fd) != NULL)
     {
         int size = strlen(buff);
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
-        // segmentation fault below
+
         printf("buff is %s\n", buff);
+
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
+
         for (int i = 0; i < slices; ++i)
         {
             printf("packet %d is %s\n", i, pktarr->data);
             pktarr++;
             // send(connFd, pktarr++, sizeof(packet), 0);
         }
+
         free(temp);
     }
     fclose(fd);
