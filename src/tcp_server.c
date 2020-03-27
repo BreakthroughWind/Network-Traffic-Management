@@ -15,7 +15,7 @@
 #define PORT 8080
 #define BACKLOG 128
 #define DATA_LENGTH 20
-
+#define LOG_INFO 1
 // #define PACKET_LENGTH 1500
 
 /* Sort the recevied packets array */
@@ -103,10 +103,11 @@ int main(int argc, char *argv[])
 #endif
 
     //read data:
-    char buf[DATA_LENGTH];
+    char buf[sizeof(packet)];
+    printf("size of packet is %d\n", sizeof(packet));
     while(1)
         {
-            int ret = read(conn->connFd, buf, DATA_LENGTH);
+            int ret = read(conn->connFd, buf, sizeof(packet));
             if(ret == -1)
             {
                 perror("read");
@@ -116,8 +117,8 @@ int main(int argc, char *argv[])
             {
                 break;
             }
-            printf("%s\n", buf);
-            write(conn->connFd, buf, ret);
+            printf("size of buf %d and content is %s\n", strlen(buf), buf);
+            // write(conn->connFd, buf, ret);
  }
 #ifdef LOG_INFO
     printf("Server: totally close\n");
