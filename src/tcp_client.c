@@ -80,7 +80,6 @@ int main(int argc, char *argv[])
     char remoteIp[INET_ADDRSTRLEN];
     int remotePort;
 
-
     if (argc != 2)
     {
         printf(stderr, "usage: client hostname\n");
@@ -109,23 +108,34 @@ int main(int argc, char *argv[])
 
     int packet_length = sizeof(packet);
     char buff[packet_length];
+
     FILE *fd = fopen("../hello.txt", "r");
     pair file = {"hello.txt", 0};
+    
     packet *pktarr = NULL;
+    
     while (fgets(buff, packet_length, fd) != NULL)
     {
         int size = strlen(buff);
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
-        // segmentation fault below
-        // printf("buff is %s\n", buff);
+
+        printf("buff is %s\n", buff);
+
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
+
         for (int i = 0; i < slices; ++i)
         {
+<<<<<<< HEAD
             printf("packet %d is %s\n", i ,pktarr->data);
+=======
+            printf("packet %d is %s\n", i, pktarr->data);
+            pktarr++;
+>>>>>>> ec382b56688a0c74dcdc327533debdbda9dc95e4
             // send(connFd, pktarr++, sizeof(packet), 0);
         }
+
         free(temp);
     }
     fclose(fd);
