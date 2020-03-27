@@ -85,7 +85,10 @@ int main(int argc, char *argv[])
 
     //successfully set up TCP connection:
     printf("Server: listen on %s:%d\n", listenIp, listenPort);
-    
+
+   //Create a socket to communicate with the client
+   struct connInfo* conn = (struct connInfo*) malloc(sizeof(struct connInfo));
+   struct sockaddr_in remoteAddr;
 
 
    if ((conn->connFd = accept(listenFd, (struct sockaddr*)&remoteAddr, (socklen_t*) &sin_size)) == -1)
