@@ -16,12 +16,18 @@
 #define BACKLOG 128
 #define DATA_LENGTH 20
 
-// #define PACKET_LENGTH 1500
-
-/* Sort the recevied packets array */
-void sort_packets(packet *packet_array)
+/* Serialize the packet */
+char *serialize() 
 {
-}
+    char *res;
+    res = malloc(sizeof(packet));
+    int index = 0;
+    while (index < sizeof(packet)) 
+    {
+
+    }
+    return res;
+} 
 
 /* Build the packet */
 void build(char *data, size_t slices, packet *packets, pair *file)
@@ -126,7 +132,6 @@ int main(int argc, char *argv[])
             printf("packet %d is %s\n", i, pktarr->data);
             send(connFd, pktarr++, sizeof(packet), 0);
         }
-
         free(temp);
     }
     fclose(fd);
