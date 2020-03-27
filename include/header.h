@@ -20,12 +20,12 @@ typedef struct
 
 typedef struct
 {
-    char *file_name;
-    size_t *count;
+    char file_name[DATA_LENGTH];
+    size_t count;
 } pair;
 
 // sender: build packet function
-void build(char *data, size_t slices, packet *packets, pair file);
+void build(char *data, size_t slices, packet *packets, pair *file);
 
 // receiver: parse packet function
 char *parse(packet *pkt);
