@@ -17,15 +17,25 @@
 #define DATA_LENGTH 20
 
 /* Serialize the packet */
+char *size_to_char(size_t num) 
+{
+    char *res;
+    int len = (int)sizeof(size_t) * 8;
+    res = malloc(len);
+    int base = 1;
+    for (int i = 0; i < len; ++i) {
+        res[len - i - 1] = base & num;
+        base = base << 1;
+    }
+    return res;
+}
+
 char *serialize() 
 {
     char *res;
     res = malloc(sizeof(packet));
     int index = 0;
-    while (index < sizeof(packet)) 
-    {
-
-    }
+    
     return res;
 } 
 
@@ -72,11 +82,6 @@ packet *split_data(char *raw_data, pair *file, size_t slices)
     // build each slice data into packets
     build(raw_data, slices, packets, file);
     return packets;
-}
-
-/* Reorganize the sorted packets array */
-void reorg(packet *packet_array)
-{
 }
 
 int main(int argc, char *argv[])
@@ -127,10 +132,12 @@ int main(int argc, char *argv[])
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
 
+
         for (int i = 0; i < slices; ++i)
         {
-            printf("packet %d is %s\n", i, pktarr->data);
-            send(connFd, pktarr++, sizeof(packet), 0);
+            char *ser_buff = serialize(pktarr++);
+            send(connFd, ser_buff, sizeof(packet), 0);
+            free(ser_buff);
         }
         free(temp);
     }
