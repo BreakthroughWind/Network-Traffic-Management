@@ -63,9 +63,7 @@ void build(char *data, size_t slices, packet *packets, pair *file)
 packet *split_data(char *raw_data, pair *file, size_t slices)
 {
     packet *packets = malloc(slices * sizeof(packet));
-    // build each slice data into packets
     build(raw_data, slices, packets, file);
-    printf("packet's content is %s\n", packets[0].data);
     return packets;
 }
 
