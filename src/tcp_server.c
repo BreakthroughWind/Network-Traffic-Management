@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
 
     //read data:
     char buf[sizeof(packet)];
-    printf("size of packet is %d\n", sizeof(packet));
     while(1)
         {
             int ret = read(conn->connFd, buf, sizeof(packet));
