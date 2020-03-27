@@ -40,18 +40,6 @@ void reorg(packet *packet_array)
 }
 
 /* Build the packet */
-void build(char *data, size_t slices, packet *packets, pair file)
-{
-<<<<<<< HEAD:src/conn.c
-}
-
-//  Use passive probing to test the condition of the path
-// double probe(pathInfo* path_array);
-
-// implement sender function
-int sender(int argc, char *argv[])
-{
-    int packet_length = sizeof(packet);
     int conn_fd;
     // first, build the connection
     struct sockaddr_in remote_addr;
@@ -62,11 +50,9 @@ int sender(int argc, char *argv[])
 
     // AF_INET stands for IPv4 protocol, SOCK_STREAM stands for TCP, 0 stands for 0.
     if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-=======
     size_t data_len = strlen(data);
 
     if (slices == 1)
->>>>>>> 61149af794bade9b551014094be36095ddc166d0:src/tcp_server.c
     {
         // update packet -> header -> flag
         strcpy(packets[0].header.file, file.flag);
@@ -79,7 +65,6 @@ int sender(int argc, char *argv[])
         // update packet -> data
         strncpy(packets[0].data, data + 0 * DATA_LENGTH, packets[0].header.length);
     }
-<<<<<<< HEAD:src/conn.c
 
     // Initialize the remote_addr specification
     bzero(&remote_addr, sizeof(struct sockaddr_in));
@@ -104,9 +89,7 @@ int sender(int argc, char *argv[])
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
     while (fgets(buff, packet_length, fd) != NULL)
-=======
     else
->>>>>>> 61149af794bade9b551014094be36095ddc166d0:src/tcp_server.c
     {
         for (size_t i = 0; i < slices; i++)
         {
@@ -212,7 +195,6 @@ int receiver(int argc, char *argv[])
     close(listenFd);
 }
 
-<<<<<<< HEAD:src/conn.c
 int main() {
     int argc = 2;
     char *argv[2];
@@ -221,14 +203,9 @@ int main() {
     printf("going to start");
     receiver(argc, argv); 
     sender(argc, argv);
-=======
-int main() 
-{
-    char *argv[2];
     int argc = 2;
     argv[0] = "a";
     argv[1] = "127.0.0.1";
     receiver(argc, argv);
->>>>>>> 61149af794bade9b551014094be36095ddc166d0:src/tcp_server.c
     return 0;
 }
