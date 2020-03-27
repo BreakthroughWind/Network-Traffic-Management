@@ -24,8 +24,14 @@ void sort_packets(packet *packet_array)
 }
 
 /* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data)
+packet *split_data(char *raw_data, pair file)
 {
+    // calculate the packet number given raw_data
+    size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
+    packet *packets = malloc(slices * sizeof(packet));
+    // build each slice data into packets
+    build(raw_data, slices, packets, file);
+    return packets;
 }
 
 /* Reorganize the sorted packets array */
@@ -34,8 +40,9 @@ void reorg(packet *packet_array)
 }
 
 /* Build the packet */
-packet build(char *data, int count, int isLast)
+void build(char *data, size_t slices, packet *packets, pair file)
 {
+<<<<<<< HEAD:src/conn.c
 }
 
 //  Use passive probing to test the condition of the path
@@ -55,10 +62,24 @@ int sender(int argc, char *argv[])
 
     // AF_INET stands for IPv4 protocol, SOCK_STREAM stands for TCP, 0 stands for 0.
     if ((conn_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+=======
+    size_t data_len = strlen(data);
+
+    if (slices == 1)
+>>>>>>> 61149af794bade9b551014094be36095ddc166d0:src/tcp_server.c
     {
-        perror("socket");
-        exit(1);
+        // update packet -> header -> flag
+        strcpy(packets[0].header.file, file.flag);
+        // update packet -> header -> seq_num
+        packets[0].header.seq_num = *file.count;
+        (*file.count) += 1;
+        // update packet -> header -> length
+        packets[0].header.length = data_len;
+
+        // update packet -> data
+        strncpy(packets[0].data, data + 0 * DATA_LENGTH, packets[0].header.length);
     }
+<<<<<<< HEAD:src/conn.c
 
     // Initialize the remote_addr specification
     bzero(&remote_addr, sizeof(struct sockaddr_in));
@@ -83,19 +104,24 @@ int sender(int argc, char *argv[])
     // We don't need to close the connection manually.
     FILE *fd = fopen("../hello.txt", "r");
     while (fgets(buff, packet_length, fd) != NULL)
+=======
+    else
+>>>>>>> 61149af794bade9b551014094be36095ddc166d0:src/tcp_server.c
     {
-        char *temp = malloc(strlen(buff) * sizeof(char));
-        strcpy(temp, buff);
-        packet *pktarr = split_data(temp);
-        for (int i = 0; (pktarr + i) != NULL; ++i)
+        for (size_t i = 0; i < slices; i++)
         {
-            // need to figure out what size this should be 
-            send(conn_fd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
+            // update packet -> header -> flag
+            strcpy(packets[i].header.file, file.flag);
+            // update packet -> header -> seq_num
+            packets[i].header.seq_num = *file.count;
+            (*file.count) += 1;
+            // update packet -> header -> length
+            packets[i].header.length = (i != slices - 1) ? DATA_LENGTH : data_len % DATA_LENGTH;
+
+            // update packet -> data
+            strncpy(packets[i].data, data + DATA_LENGTH * i, packets[i].header.length);
         }
-        // check the content of the buff
-        printf("content is %s", buff);
     }
-    fclose(fd);
 }
 
 struct connInfo
@@ -186,6 +212,7 @@ int receiver(int argc, char *argv[])
     close(listenFd);
 }
 
+<<<<<<< HEAD:src/conn.c
 int main() {
     int argc = 2;
     char *argv[2];
@@ -194,5 +221,14 @@ int main() {
     printf("going to start");
     receiver(argc, argv); 
     sender(argc, argv);
+=======
+int main() 
+{
+    char *argv[2];
+    int argc = 2;
+    argv[0] = "a";
+    argv[1] = "127.0.0.1";
+    receiver(argc, argv);
+>>>>>>> 61149af794bade9b551014094be36095ddc166d0:src/tcp_server.c
     return 0;
 }
