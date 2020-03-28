@@ -28,13 +28,12 @@ void reorg(packet *packet_array)
 {
 }
 
-/* Parse the received data */
-char *parse(packet *pkt)
+/* Deserialize the packet */
+packet *deserialize(unsigned char *data)
 {
-    char *data;
-    data = malloc(strlen(pkt->data));
-    strcpy(data, pkt->data);
-    return data;
+    packet *pkt;
+    pkt = (packet *)&data;
+    return pkt;
 }
 
 struct connInfo
@@ -85,40 +84,40 @@ int main(int argc, char *argv[])
 
     //successfully set up TCP connection:
     printf("Server: listen on %s:%d\n", listenIp, listenPort);
-    
-   //Create a socket to communicate with the client
-   struct connInfo* conn = (struct connInfo*) malloc(sizeof(struct connInfo));
-   struct sockaddr_in remoteAddr;
 
-   if ((conn->connFd = accept(listenFd, (struct sockaddr*)&remoteAddr, (socklen_t*) &sin_size)) == -1)
-   {
-       perror("accept");
-       exit(1);
-   }
-   inet_ntop(AF_INET, &(remoteAddr.sin_addr), conn->remoteIp, INET_ADDRSTRLEN);
-   conn->remotePort = (int) ntohs(remoteAddr.sin_port);
+    //Create a socket to communicate with the client
+    struct connInfo *conn = (struct connInfo *)malloc(sizeof(struct connInfo));
+    struct sockaddr_in remoteAddr;
+
+    if ((conn->connFd = accept(listenFd, (struct sockaddr *)&remoteAddr, (socklen_t *)&sin_size)) == -1)
+    {
+        perror("accept");
+        exit(1);
+    }
+    inet_ntop(AF_INET, &(remoteAddr.sin_addr), conn->remoteIp, INET_ADDRSTRLEN);
+    conn->remotePort = (int)ntohs(remoteAddr.sin_port);
 
 #ifdef LOG_INFO
-   printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
+    printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
 #endif
 
     //read data:
-    char buf[sizeof(packet)];
-    while(1)
+    unsigned char buf[sizeof(packet)];
+    while (1)
+    {
+        int ret = read(conn->connFd, buf, sizeof(packet));
+        if (ret == -1)
         {
-            int ret = read(conn->connFd, buf, sizeof(packet));
-            if(ret == -1)
-            {
-                perror("read");
-                break;
-            }
-            if(ret == 0)
-            {
-                break;
-            }
-            printf("size of buf %d and content is %s\n", strlen(buf), buf);
-            // write(conn->connFd, buf, ret);
- }
+            perror("read");
+            break;
+        }
+        if (ret == 0)
+        {
+            break;
+        }
+        printf("size of buf %d and content is %s\n", strlen(buf), buf);
+        // write(conn->connFd, buf, ret);
+    }
 #ifdef LOG_INFO
     printf("Server: totally close\n");
 #endif
