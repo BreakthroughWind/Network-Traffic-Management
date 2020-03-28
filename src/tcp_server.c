@@ -28,15 +28,6 @@ void reorg(packet *packet_array)
 {
 }
 
-/* Parse the received data */
-char *parse(packet *pkt)
-{
-    char *data;
-    data = malloc(strlen(pkt->data));
-    strcpy(data, pkt->data);
-    return data;
-}
-
 struct connInfo
 {
     int connFd;
@@ -116,8 +107,7 @@ int main(int argc, char *argv[])
             {
                 break;
             }
-            printf("size of buf %d and content is %s\n", strlen(buf), buf);
-            // write(conn->connFd, buf, ret);
+            write(conn->connFd, buf, ret);
  }
 #ifdef LOG_INFO
     printf("Server: totally close\n");

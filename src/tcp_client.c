@@ -17,24 +17,13 @@
 #define DATA_LENGTH 20
 
 
-char *serialize(packet *pkt) 
+
+unsigned char *serialize(packet *pkt)
 {
-    char *res;
-    res = malloc(sizeof(packet));
-    int index = 0;
-    for (; (*pkt).header.file[index] != '\0'; index++)
-    {
-        res[index++] = (*pkt).header.file[index];
-    }
-    index = DATA_LENGTH;
-    res[index++] = (*pkt).header.isLast;
-    char *seq = size_to_char((*pkt).header.seq_num);
-    for (int i = 0; i < sizeof(size_t) * 8; ++i) 
-    {
-        res[index++] = (*pkt).header.file[index];
-    }
-    return res;
-} 
+    unsigned char buffer[sizeof(pkt)];
+    memcpy(&buffer, &pkt, sizeof(pkt));
+    return &buffer;
+}
 
 /* Build the packet */
 void build(char *data, size_t slices, packet *packets, pair *file)
@@ -108,7 +97,7 @@ int main(int argc, char *argv[])
     inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
     remotePort = (int)ntohs(remoteAddr.sin_port);
 
-    if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
+    if (connect(connFd, (struct sockaddr *)&remoteAddr, sizeof(struct sockaddr)) == -1)
     {
         perror("connect");
         exit(1);
@@ -119,9 +108,9 @@ int main(int argc, char *argv[])
 
     FILE *fd = fopen("../hello.txt", "r");
     pair file = {"hello.txt", 0};
-    
+
     packet *pktarr = NULL;
-    
+
     while (fgets(buff, packet_length, fd) != NULL)
     {
         char *temp = malloc(strlen(buff));
@@ -129,10 +118,9 @@ int main(int argc, char *argv[])
         size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
         pktarr = split_data(temp, &file, slices);
 
-
         for (int i = 0; i < slices; ++i)
         {
-            char *ser_buff = serialize(pktarr++);
+            unsigned char *ser_buff = serialize(pktarr++);
             send(connFd, ser_buff, sizeof(packet), 0);
             free(ser_buff);
         }
