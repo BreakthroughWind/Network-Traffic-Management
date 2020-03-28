@@ -16,26 +16,23 @@
 #define BACKLOG 128
 #define DATA_LENGTH 20
 
-/* Serialize the packet */
-char *size_to_char(size_t num) 
-{
-    char *res;
-    int len = (int)sizeof(size_t) * 8;
-    res = malloc(len);
-    int base = 1;
-    for (int i = 0; i < len; ++i) {
-        res[len - i - 1] = base & num;
-        base = base << 1;
-    }
-    return res;
-}
 
-char *serialize() 
+char *serialize(packet *pkt) 
 {
     char *res;
     res = malloc(sizeof(packet));
     int index = 0;
-    
+    for (; (*pkt).header.file[index] != '\0'; index++)
+    {
+        res[index++] = (*pkt).header.file[index];
+    }
+    index = DATA_LENGTH;
+    res[index++] = (*pkt).header.isLast;
+    char *seq = size_to_char((*pkt).header.seq_num);
+    for (int i = 0; i < sizeof(size_t) * 8; ++i) 
+    {
+        res[index++] = (*pkt).header.file[index];
+    }
     return res;
 } 
 
