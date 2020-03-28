@@ -35,12 +35,7 @@ unsigned char *serialize(packet *pkt)
 {
     unsigned char buffer[sizeof(pkt)];
     memcpy(&buffer, &pkt, sizeof(pkt));
-
-    packet *msg;
-    packet theMsg;
-    msg = (packet *)&buffer;
-    theMsg = *msg;
-    return &theMsg;
+    return &buffer;
 }
 
 /* Build the packet */
