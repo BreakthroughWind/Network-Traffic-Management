@@ -17,20 +17,6 @@
 #define DATA_LENGTH 20
 
 /* Serialize the packet */
-char *size_to_char(size_t num)
-{
-    char *res;
-    int len = (int)sizeof(size_t) * 8;
-    res = malloc(len);
-    int base = 1;
-    for (int i = 0; i < len; ++i)
-    {
-        res[len - i - 1] = base & num;
-        base = base << 1;
-    }
-    return res;
-}
-
 unsigned char *serialize(packet *pkt)
 {
     unsigned char buffer[sizeof(pkt)];
@@ -133,7 +119,7 @@ int main(int argc, char *argv[])
 
         for (int i = 0; i < slices; ++i)
         {
-            char *ser_buff = serialize(pktarr++);
+            unsigned char *ser_buff = serialize(pktarr++);
             send(connFd, ser_buff, sizeof(packet), 0);
             free(ser_buff);
         }
