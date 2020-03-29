@@ -16,25 +16,18 @@
 #define BACKLOG 128
 #define DATA_LENGTH 20
 
-// #define PACKET_LENGTH 1500
-
-/* Sort the recevied packets array */
-void sort_packets(packet *packet_array)
-{
-}
-
 /* Build the packet */
-void build(char *data, size_t slices, packet *packets, pair file)
+void build(char *data, int slices, packet *packets, pair *file)
 {
-    size_t data_len = strlen(data);
+    int data_len = strlen(data);
 
     if (slices == 1)
     {
         // update packet -> header -> flag
-        strcpy(packets[0].header.file, file.file_name);
+        strcpy(packets[0].header.file, file->file_name);
         // update packet -> header -> seq_num
-        packets[0].header.seq_num = *file.count;
-        (*file.count) += 1;
+        packets[0].header.seq_num = file->count;
+        file->count += 1;
         // update packet -> header -> length
         packets[0].header.length = data_len;
 
@@ -43,13 +36,13 @@ void build(char *data, size_t slices, packet *packets, pair file)
     }
     else
     {
-        for (size_t i = 0; i < slices; i++)
+        for (int i = 0; i < slices; i++)
         {
             // update packet -> header -> flag
-            strcpy(packets[i].header.file, file.file_name);
+            strcpy(packets[i].header.file, file->file_name);
             // update packet -> header -> seq_num
-            packets[i].header.seq_num = *file.count;
-            (*file.count) += 1;
+            packets[i].header.seq_num = file->count;
+            file->count += 1;
             // update packet -> header -> length
             packets[i].header.length = (i != slices - 1) ? DATA_LENGTH : data_len % DATA_LENGTH;
 
@@ -60,19 +53,12 @@ void build(char *data, size_t slices, packet *packets, pair file)
 }
 
 /* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data, pair file)
+packet *split_data(char *raw_data, pair *file, int slices)
 {
-    // calculate the packet number given raw_data
-    size_t slices = (size_t)ceil((double)strlen(raw_data) / DATA_LENGTH);
     packet *packets = malloc(slices * sizeof(packet));
     // build each slice data into packets
     build(raw_data, slices, packets, file);
     return packets;
-}
-
-/* Reorganize the sorted packets array */
-void reorg(packet *packet_array)
-{
 }
 
 int main(int argc, char *argv[])
@@ -84,7 +70,7 @@ int main(int argc, char *argv[])
 
     if (argc != 2)
     {
-        printf(stderr,"usage: client hostname\n");
+        printf(stderr, "usage: client hostname\n");
         exit(1);
     }
 
@@ -93,16 +79,16 @@ int main(int argc, char *argv[])
         perror("socket");
         exit(1);
     }
-    
+
     bzero(&remoteAddr, sizeof(struct sockaddr_in));
     remoteAddr.sin_family = AF_INET;
     remoteAddr.sin_port = htons(PORT);
     remoteAddr.sin_addr.s_addr = inet_addr(argv[1]);
-    
-    inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
-    remotePort = (int) ntohs(remoteAddr.sin_port);
 
-    if (connect(connFd,(struct sockaddr*)&remoteAddr, sizeof(struct sockaddr)) == -1)
+    inet_ntop(AF_INET, &(remoteAddr.sin_addr), remoteIp, INET_ADDRSTRLEN);
+    remotePort = (int)ntohs(remoteAddr.sin_port);
+
+    if (connect(connFd, (struct sockaddr *)&remoteAddr, sizeof(struct sockaddr)) == -1)
     {
         perror("connect");
         exit(1);
@@ -110,21 +96,27 @@ int main(int argc, char *argv[])
 
     int packet_length = sizeof(packet);
     char buff[packet_length];
+
     FILE *fd = fopen("../hello.txt", "r");
-    pair pair = {"hello.txt", 0};
+    pair file = {"hello.txt", 0};
+
     packet *pktarr = NULL;
+
     while (fgets(buff, packet_length, fd) != NULL)
     {
-        int size = strlen(buff);
-        char *temp  = malloc(strlen(buff));
+        char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
-        // segmentation fault below
-        pktarr = split_data(temp, pair);
-        for (int i = 0; (pktarr + i) != NULL; ++i)
+
+        int slices = (int)ceil((double)strlen(temp) / DATA_LENGTH);
+        pktarr = split_data(temp, &file, slices);
+
+        for (int i = 0; i < slices; ++i)
         {
-            send(connFd, pktarr + i, sizeof(packet) + DATA_LENGTH, 0);
+            char *ser_buff = malloc(sizeof(packet));
+            memcpy(ser_buff, pktarr++, sizeof(packet));
+            send(connFd, ser_buff, sizeof(packet), 0);
+            free(ser_buff);
         }
-        printf("content is %s\n", buff);
     }
     fclose(fd);
     return 0;

@@ -8,8 +8,8 @@ typedef struct
 {
     char file[DATA_LENGTH];
     bool isLast;
-    size_t seq_num;
-    size_t length;
+    int seq_num;
+    int length;
 } header;
 
 typedef struct
@@ -20,12 +20,12 @@ typedef struct
 
 typedef struct
 {
-    char *file_name;
-    size_t *count;
+    char file_name[DATA_LENGTH];
+    int count;
 } pair;
 
 // sender: build packet function
-void build(char *data, size_t slices, packet *packets, pair file);
+void build(char *data, int slices, packet *packets, pair *file);
 
 // receiver: parse packet function
 char *parse(packet *pkt);
