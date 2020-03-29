@@ -28,43 +28,6 @@ void reorg(packet *packet_array)
 {
 }
 
-/* Deserialize the packet */
-// packet *deserialize(unsigned char *data)
-// {
-//     packet *pkt;
-
-//     pkt = (packet *)&data;
-//     return pkt;
-// }
-
-void char_to_int(char *cptr, int *nptr)
-{
-    *nptr = (cptr[0] << 24) + (cptr[1] << 16) + (cptr[2] << 8) + (cptr[3] << 0);
-    cptr = cptr + 4;
-}
-
-
-void deserialize(char *data, packet* pkt)
-{
-    char *ptr = (char*)data;    
-    for (int i = 0; i < DATA_LENGTH; ++i) {
-        if (*ptr != 127) {   
-            pkt->header.file[i] = *ptr;
-        }
-        ++ptr;
-    } 
-    char_to_int(ptr, &(pkt->header.isLast));
-    char_to_int(ptr, &(pkt->header.seq_num));
-    char_to_int(ptr, &(pkt->header.length));
-
-    strncpy(pkt->data, ptr, pkt->header.length);
-    printf("file name is %s\n", pkt->header.file);
-    printf("is last %d\n", pkt->header.isLast);
-    printf("sequence number %d\n", pkt->header.seq_num);
-    printf("length is %d\n", pkt->header.length);
-    printf("data is %s", pkt->data);
-}
-
 struct connInfo
 {
     int connFd;
@@ -134,7 +97,7 @@ int main(int argc, char *argv[])
     unsigned char buf[sizeof(packet)];
     while (1)
     {
-        int ret = read(conn->connFd, buf, sizeof(packet));
+        int ret = recv(conn->connFd, buf, sizeof(packet), 0);
         if (ret == -1)
         {
             perror("read");
@@ -145,7 +108,7 @@ int main(int argc, char *argv[])
             break;
         }
         packet *pkt = malloc(sizeof(packet));
-        deserialize(buf, pkt);
+	    memcpy(pkt, buf, sizeof(buf));
         printf("file name is %s\n", (*pkt).header.file);
         printf("seq_num is %ld\n", (*pkt).header.seq_num);
         printf("length is %ld\n", (*pkt).header.length);
