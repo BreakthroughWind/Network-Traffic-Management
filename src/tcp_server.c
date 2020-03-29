@@ -37,27 +37,30 @@ void reorg(packet *packet_array)
 //     return pkt;
 // }
 
+void char_to_int(char *cptr, int *nptr)
+{
+    *nptr = (cptr[0] << 24) + (cptr[1] << 16) + (cptr[2] << 8) + (cptr[3] << 0);
+    cptr = cptr + 4;
+}
+
+
 void deserialize(char *data, packet* pkt)
 {
-    int *q = (int*)data;    
+    int *ptr = (int*)data;    
     for (int i = 0; i < DATA_LENGTH; ++i) {
-      pkt->header.file[i] = *q;
-      ++q;
+      pkt->header.file[i] = *ptr;
+      ++ptr;
     } 
-    pkt->header.isLast = *q;
-    ++q;
-    pkt->header.seq_num = *q;
-    ++q;
-    pkt->header.length = *q;
-    ++q;
+    char_to_int(ptr, &(pkt->header.isLast));
+    char_to_int(ptr, &(pkt->header.seq_num));
+    char_to_int(ptr, &(pkt->header.length));
 
-    char *p = (char*) q;
-    strncpy(pkt->data, p, pkt->header.length);
-    // printf("file name is %s\n", pkt->header.file);
-    // printf("is last %d\n", pkt->header.isLast);
-    // printf("sequence number %d\n", pkt->header.seq_num);
-    // printf("length is %d\n", pkt->header.length);
-    // printf("data is %s", pkt->data);
+    strncpy(pkt->data, ptr, pkt->header.length);
+    printf("file name is %s\n", pkt->header.file);
+    printf("is last %d\n", pkt->header.isLast);
+    printf("sequence number %d\n", pkt->header.seq_num);
+    printf("length is %d\n", pkt->header.length);
+    printf("data is %s", pkt->data);
 }
 
 struct connInfo

@@ -32,52 +32,64 @@
 //     return pkt;
 // }
 
+void int_to_char(int n, char *ptr) 
+{   
+    unsigned char bytes[4];
+
+    bytes[0] = (n >> 24) & 0xFF;
+    bytes[1] = (n >> 16) & 0xFF;
+    bytes[2] = (n >> 8) & 0xFF;
+    bytes[3] = n & 0xFF;
+    
+    for (int i = 0; i < 4; ++i) {
+        *ptr = bytes[i];
+        ptr++;
+    }
+}
+
+void char_to_int(char *cptr, int *nptr)
+{
+    *nptr = (cptr[0] << 24) + (cptr[1] << 16) + (cptr[2] << 8) + (cptr[3] << 0);
+    cptr = cptr + 4;
+}
+
 void serialize(packet* pkt, char *data)
 {
-    int *q = (int*)data;    
+    int *ptr = (int*)data;    
     for (int i = 0; i < DATA_LENGTH; ++i) {
       if (i < strlen(pkt->header.file)) {
-        *q = pkt->header.file[i];
+        *ptr = pkt->header.file[i];
       }
       else {
-        *q = 127;
+        *ptr = 127;
       }
-      ++q;
+      ++ptr;
     }
-    *q = pkt->header.isLast;   
-    q++;    
-    *q = pkt->header.seq_num;     
-    q++;
-    *q = pkt->header.length;     
-    q++;
-
-    char *p = (char*)q;
+    int_to_char(pkt->header.isLast, ptr);
+    int_to_char(pkt->header.seq_num, ptr);
+    int_to_char(pkt->header.length, ptr);
     for (int i  = 0; i < strlen(pkt->data); ++i) {
-      *p = pkt->data[i];
-      ++p;
+      *ptr = pkt->data[i];
+      ++ptr;
     }
 }
 void deserialize(char *data, packet* pkt)
 {
-    int *q = (int*)data;    
+    int *ptr = (int*)data;    
     for (int i = 0; i < DATA_LENGTH; ++i) {
-      pkt->header.file[i] = *q;
-      ++q;
+      pkt->header.file[i] = *ptr;
+      ++ptr;
     } 
-    pkt->header.isLast = *q;
-    ++q;
-    pkt->header.seq_num = *q;
-    ++q;
-    pkt->header.length = *q;
-    ++q;
+    char_to_int(ptr, &(pkt->header.isLast));
+    char_to_int(ptr, &(pkt->header.seq_num));
+    char_to_int(ptr, &(pkt->header.length));
 
-    char *p = (char*) q;
-    strncpy(pkt->data, p, pkt->header.length);
-    // printf("file name is %s\n", pkt->header.file);
-    // printf("is last %d\n", pkt->header.isLast);
-    // printf("sequence number %d\n", pkt->header.seq_num);
-    // printf("length is %d\n", pkt->header.length);
-    // printf("data is %s", pkt->data);
+    strncpy(pkt->data, ptr, pkt->header.length);
+    printf("file name is %s\n", pkt->header.file);
+    printf("is last %d\n", pkt->header.isLast);
+    printf("sequence number %d\n", pkt->header.seq_num);
+    printf("length is %d\n", pkt->header.length);
+    printf("data is %s", pkt->data);
 }
 
 /* Build the packet */
@@ -179,10 +191,13 @@ int main(int argc, char *argv[])
         for (int i = 0; i < slices; ++i)
         {
             char *ser_buff = malloc(sizeof(packet));
-            printf("data is %s\n", (pktarr + i)->data);
+            // printf("data is %s\n", (pktarr + i)->data);
             serialize(pktarr++, ser_buff);
             send(connFd, ser_buff, sizeof(packet), 0);
+            packet *pkt = malloc(sizeof(packet));
+            deserialize(ser_buff, pkt);
             free(ser_buff);
+            free(pkt);
         }   
     }
     fclose(fd);
