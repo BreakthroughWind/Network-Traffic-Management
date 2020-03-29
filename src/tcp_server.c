@@ -46,10 +46,12 @@ void char_to_int(char *cptr, int *nptr)
 
 void deserialize(char *data, packet* pkt)
 {
-    int *ptr = (int*)data;    
+    char *ptr = (char*)data;    
     for (int i = 0; i < DATA_LENGTH; ++i) {
-      pkt->header.file[i] = *ptr;
-      ++ptr;
+        if (*ptr != 127) {   
+            pkt->header.file[i] = *ptr;
+        }
+        ++ptr;
     } 
     char_to_int(ptr, &(pkt->header.isLast));
     char_to_int(ptr, &(pkt->header.seq_num));

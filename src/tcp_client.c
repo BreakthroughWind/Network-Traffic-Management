@@ -40,9 +40,10 @@ void int_to_char(int n, char *ptr)
     bytes[1] = (n >> 16) & 0xFF;
     bytes[2] = (n >> 8) & 0xFF;
     bytes[3] = n & 0xFF;
-    
+    printf("result of int to char is ");
     for (int i = 0; i < 4; ++i) {
         *ptr = bytes[i];
+        printf("%c", ptr);
         ptr++;
     }
 }
@@ -55,7 +56,7 @@ void char_to_int(char *cptr, int *nptr)
 
 void serialize(packet* pkt, char *data)
 {
-    int *ptr = (int*)data;    
+    char *ptr = (char*)data;    
     for (int i = 0; i < DATA_LENGTH; ++i) {
       if (i < strlen(pkt->header.file)) {
         *ptr = pkt->header.file[i];
@@ -68,28 +69,35 @@ void serialize(packet* pkt, char *data)
     int_to_char(pkt->header.isLast, ptr);
     int_to_char(pkt->header.seq_num, ptr);
     int_to_char(pkt->header.length, ptr);
+    
     for (int i  = 0; i < strlen(pkt->data); ++i) {
-      *ptr = pkt->data[i];
+      if (*ptr != 127) {
+        *ptr = pkt->data[i];
+      }
+      
       ++ptr;
     }
+    
 }
 void deserialize(char *data, packet* pkt)
 {
-    int *ptr = (int*)data;    
+    printf("First line of deserialize\n");
+    char *ptr = (char*)data;    
     for (int i = 0; i < DATA_LENGTH; ++i) {
-      pkt->header.file[i] = *ptr;
-      ++ptr;
-    } 
+        if (*ptr != 127) {   
+            pkt->header.file[i] = *ptr;
+        }
+        ++ptr;
+    }
     char_to_int(ptr, &(pkt->header.isLast));
     char_to_int(ptr, &(pkt->header.seq_num));
     char_to_int(ptr, &(pkt->header.length));
-
-    strncpy(pkt->data, ptr, pkt->header.length);
     printf("file name is %s\n", pkt->header.file);
     printf("is last %d\n", pkt->header.isLast);
     printf("sequence number %d\n", pkt->header.seq_num);
     printf("length is %d\n", pkt->header.length);
-    printf("data is %s", pkt->data);
+    strncpy(&(pkt->data), ptr, pkt->header.length);
+    // printf("data is %s", pkt->data);
 }
 
 /* Build the packet */
@@ -191,10 +199,12 @@ int main(int argc, char *argv[])
         for (int i = 0; i < slices; ++i)
         {
             char *ser_buff = malloc(sizeof(packet));
-            // printf("data is %s\n", (pktarr + i)->data);
+            printf("Before serialize\n");
             serialize(pktarr++, ser_buff);
             send(connFd, ser_buff, sizeof(packet), 0);
-            packet *pkt = malloc(sizeof(packet));
+            packet *pkt;
+            pkt = malloc(sizeof(int) * 3 + DATA_LENGTH * 2 * sizeof(char));
+            printf("Before deserialize\n");
             deserialize(ser_buff, pkt);
             free(ser_buff);
             free(pkt);
