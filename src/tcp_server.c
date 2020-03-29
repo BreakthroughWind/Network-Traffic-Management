@@ -28,6 +28,38 @@ void reorg(packet *packet_array)
 {
 }
 
+/* Deserialize the packet */
+// packet *deserialize(unsigned char *data)
+// {
+//     packet *pkt;
+
+//     pkt = (packet *)&data;
+//     return pkt;
+// }
+
+void deserialize(char *data, packet* pkt)
+{
+    int *q = (int*)data;    
+    for (int i = 0; i < DATA_LENGTH; ++i) {
+      pkt->header.file[i] = *q;
+      ++q;
+    } 
+    pkt->header.isLast = *q;
+    ++q;
+    pkt->header.seq_num = *q;
+    ++q;
+    pkt->header.length = *q;
+    ++q;
+
+    char *p = (char*) q;
+    strncpy(pkt->data, p, pkt->header.length);
+    // printf("file name is %s\n", pkt->header.file);
+    // printf("is last %d\n", pkt->header.isLast);
+    // printf("sequence number %d\n", pkt->header.seq_num);
+    // printf("length is %d\n", pkt->header.length);
+    // printf("data is %s", pkt->data);
+}
+
 struct connInfo
 {
     int connFd;
@@ -76,39 +108,44 @@ int main(int argc, char *argv[])
 
     //successfully set up TCP connection:
     printf("Server: listen on %s:%d\n", listenIp, listenPort);
-    
-   //Create a socket to communicate with the client
-   struct connInfo* conn = (struct connInfo*) malloc(sizeof(struct connInfo));
-   struct sockaddr_in remoteAddr;
 
-   if ((conn->connFd = accept(listenFd, (struct sockaddr*)&remoteAddr, (socklen_t*) &sin_size)) == -1)
-   {
-       perror("accept");
-       exit(1);
-   }
-   inet_ntop(AF_INET, &(remoteAddr.sin_addr), conn->remoteIp, INET_ADDRSTRLEN);
-   conn->remotePort = (int) ntohs(remoteAddr.sin_port);
+    //Create a socket to communicate with the client
+    struct connInfo *conn = (struct connInfo *)malloc(sizeof(struct connInfo));
+    struct sockaddr_in remoteAddr;
+
+    if ((conn->connFd = accept(listenFd, (struct sockaddr *)&remoteAddr, (socklen_t *)&sin_size)) == -1)
+    {
+        perror("accept");
+        exit(1);
+    }
+    inet_ntop(AF_INET, &(remoteAddr.sin_addr), conn->remoteIp, INET_ADDRSTRLEN);
+    conn->remotePort = (int)ntohs(remoteAddr.sin_port);
 
 #ifdef LOG_INFO
-   printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
+    printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
 #endif
 
     //read data:
-    char buf[sizeof(packet)];
-    while(1)
+    unsigned char buf[sizeof(packet)];
+    while (1)
+    {
+        int ret = read(conn->connFd, buf, sizeof(packet));
+        if (ret == -1)
         {
-            int ret = read(conn->connFd, buf, sizeof(packet));
-            if(ret == -1)
-            {
-                perror("read");
-                break;
-            }
-            if(ret == 0)
-            {
-                break;
-            }
-            write(conn->connFd, buf, ret);
- }
+            perror("read");
+            break;
+        }
+        if (ret == 0)
+        {
+            break;
+        }
+        packet *pkt = malloc(sizeof(packet));
+        deserialize(buf, pkt);
+        printf("file name is %s\n", (*pkt).header.file);
+        printf("seq_num is %ld\n", (*pkt).header.seq_num);
+        printf("length is %ld\n", (*pkt).header.length);
+        printf("data is %s\n", (*pkt).data);
+    }
 #ifdef LOG_INFO
     printf("Server: totally close\n");
 #endif

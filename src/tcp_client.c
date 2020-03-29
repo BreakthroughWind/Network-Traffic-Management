@@ -16,19 +16,74 @@
 #define BACKLOG 128
 #define DATA_LENGTH 20
 
+/* Serialize the packet */
+// unsigned char *serialize(packet *pkt)
+// {
+//     unsigned char buffer[sizeof(pkt)];
+//     memcpy(&buffer, &pkt, sizeof(pkt));
+//     return &buffer;
+// }
 
+// packet *deserialize(unsigned char *data)
+// {
+//     packet *pkt;
 
-unsigned char *serialize(packet *pkt)
+//     pkt = (packet *)data;
+//     return pkt;
+// }
+
+void serialize(packet* pkt, char *data)
 {
-    unsigned char buffer[sizeof(pkt)];
-    memcpy(&buffer, &pkt, sizeof(pkt));
-    return &buffer;
+    int *q = (int*)data;    
+    for (int i = 0; i < DATA_LENGTH; ++i) {
+      if (i < strlen(pkt->header.file)) {
+        *q = pkt->header.file[i];
+      }
+      else {
+        *q = 127;
+      }
+      ++q;
+    }
+    *q = pkt->header.isLast;   
+    q++;    
+    *q = pkt->header.seq_num;     
+    q++;
+    *q = pkt->header.length;     
+    q++;
+
+    char *p = (char*)q;
+    for (int i  = 0; i < strlen(pkt->data); ++i) {
+      *p = pkt->data[i];
+      ++p;
+    }
+}
+void deserialize(char *data, packet* pkt)
+{
+    int *q = (int*)data;    
+    for (int i = 0; i < DATA_LENGTH; ++i) {
+      pkt->header.file[i] = *q;
+      ++q;
+    } 
+    pkt->header.isLast = *q;
+    ++q;
+    pkt->header.seq_num = *q;
+    ++q;
+    pkt->header.length = *q;
+    ++q;
+
+    char *p = (char*) q;
+    strncpy(pkt->data, p, pkt->header.length);
+    // printf("file name is %s\n", pkt->header.file);
+    // printf("is last %d\n", pkt->header.isLast);
+    // printf("sequence number %d\n", pkt->header.seq_num);
+    // printf("length is %d\n", pkt->header.length);
+    // printf("data is %s", pkt->data);
 }
 
 /* Build the packet */
-void build(char *data, size_t slices, packet *packets, pair *file)
+void build(char *data, int slices, packet *packets, pair *file)
 {
-    size_t data_len = strlen(data);
+    int data_len = strlen(data);
 
     if (slices == 1)
     {
@@ -45,7 +100,7 @@ void build(char *data, size_t slices, packet *packets, pair *file)
     }
     else
     {
-        for (size_t i = 0; i < slices; i++)
+        for (int i = 0; i < slices; i++)
         {
             // update packet -> header -> flag
             strcpy(packets[i].header.file, file->file_name);
@@ -62,7 +117,7 @@ void build(char *data, size_t slices, packet *packets, pair *file)
 }
 
 /* Split the raw data input to multiple slices */
-packet *split_data(char *raw_data, pair *file, size_t slices)
+packet *split_data(char *raw_data, pair *file, int slices)
 {
     packet *packets = malloc(slices * sizeof(packet));
     // build each slice data into packets
@@ -115,16 +170,20 @@ int main(int argc, char *argv[])
     {
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
-        size_t slices = (size_t)ceil((double)strlen(temp) / DATA_LENGTH);
+        printf("temp length is %ld, buff is %s\n", strlen(temp), temp);
+        
+        int slices = (int)ceil((double)strlen(temp) / DATA_LENGTH);
+        printf("number of slices is %d\n", slices);
         pktarr = split_data(temp, &file, slices);
 
         for (int i = 0; i < slices; ++i)
         {
-            unsigned char *ser_buff = serialize(pktarr++);
+            char *ser_buff = malloc(sizeof(packet));
+            printf("data is %s\n", (pktarr + i)->data);
+            serialize(pktarr++, ser_buff);
             send(connFd, ser_buff, sizeof(packet), 0);
             free(ser_buff);
-        }
-        free(temp);
+        }   
     }
     fclose(fd);
     return 0;

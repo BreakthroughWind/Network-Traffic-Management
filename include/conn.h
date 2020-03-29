@@ -3,27 +3,27 @@
 typedef struct
 {
     // struct receiver_buffer;
-    size_t receive_size;
+    int receive_size;
     char *receive_buffer;
 
-    size_t send_size;
+    int send_size;
     char *send_buffer;
 
     // tcp connections
-    size_t socket_num;
-    size_t *sockets;
+    int socket_num;
+    int *sockets;
 
     // mutex: lock and cond
 } conn;
 
 // initalization
-size_t conn_init(conn *connection);
+int conn_init(conn *connection);
 
 // sender: send function
-size_t conn_send(conn *connection, size_t data_len, char *data);
+int conn_send(conn *connection, int data_len, char *data);
 
 // receiver: receive function
-size_t conn_read(conn *connection, size_t data_len, char *data);
+int conn_read(conn *connection, int data_len, char *data);
 
 // termination
-size_t conn_close(conn *connection);
+int conn_close(conn *connection);
