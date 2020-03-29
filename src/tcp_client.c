@@ -106,19 +106,17 @@ int main(int argc, char *argv[])
     {
         char *temp = malloc(strlen(buff));
         strcpy(temp, buff);
-        printf("temp length is %ld, buff is %s\n", strlen(temp), temp);
-        
+
         int slices = (int)ceil((double)strlen(temp) / DATA_LENGTH);
-        printf("number of slices is %d\n", slices);
         pktarr = split_data(temp, &file, slices);
 
         for (int i = 0; i < slices; ++i)
         {
-            char *ser_buff = malloc(sizeof(packet)); 
-	        memcpy(ser_buff, pktarr++, sizeof(packet));
+            char *ser_buff = malloc(sizeof(packet));
+            memcpy(ser_buff, pktarr++, sizeof(packet));
             send(connFd, ser_buff, sizeof(packet), 0);
             free(ser_buff);
-        }   
+        }
     }
     fclose(fd);
     return 0;

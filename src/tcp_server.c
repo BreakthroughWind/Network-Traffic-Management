@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
             break;
         }
         packet *pkt = malloc(sizeof(packet));
-	    memcpy(pkt, buf, sizeof(buf));
+        memcpy(pkt, buf, sizeof(buf));
         printf("file name is %s\n", (*pkt).header.file);
         printf("seq_num is %ld\n", (*pkt).header.seq_num);
         printf("length is %ld\n", (*pkt).header.length);
