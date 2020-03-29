@@ -192,12 +192,13 @@ int main(int argc, char *argv[])
         {
             char *ser_buff = malloc(sizeof(packet));
             // printf("data is %s\n", (pktarr + i)->data);
-            serialize(pktarr++, ser_buff);
+            //serialize(pktarr++, ser_buff);
+	    memcpy(ser_buff, pktarr++, sizeof(packet));
             send(connFd, ser_buff, sizeof(packet), 0);
-            packet *pkt = malloc(sizeof(packet));
-            deserialize(ser_buff, pkt);
+           // packet *pkt = malloc(sizeof(packet));
+           // deserialize(ser_buff, pkt);
             free(ser_buff);
-            free(pkt);
+          //  free(pkt);
         }   
     }
     fclose(fd);
