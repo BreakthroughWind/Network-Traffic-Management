@@ -92,7 +92,8 @@ int main(int argc, char *argv[])
 #ifdef LOG_INFO
     printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
 #endif
-
+    char file[] = "hello.txt";
+    FILE *fptr = fopen(file, "w");
     //read data:
     unsigned char buf[sizeof(packet)];
     while (1)
@@ -109,11 +110,14 @@ int main(int argc, char *argv[])
         }
         packet *pkt = malloc(sizeof(packet));
         memcpy(pkt, buf, sizeof(buf));
-        printf("file name is %s\n", (*pkt).header.file);
-        printf("seq_num is %ld\n", (*pkt).header.seq_num);
-        printf("length is %ld\n", (*pkt).header.length);
-        printf("data is %s\n", (*pkt).data);
+        if (strcmp((*pkt).header.file, file) == 0)
+        {
+            fprintf(fptr, "%d\n", (*pkt).header.seq_num);
+            fprintf(fptr, "%d\n", (*pkt).header.length);
+            fprintf(fptr, "%s\n", (*pkt).data);
+        }
     }
+    fclose(fptr);
 #ifdef LOG_INFO
     printf("Server: totally close\n");
 #endif
