@@ -18,6 +18,8 @@
 #define LOG_INFO 1
 // #define PACKET_LENGTH 1500
 
+int max_num_pkt;
+
 /* Sort the recevied packets array */
 void sort_packets(packet *packet_array)
 {
@@ -26,6 +28,21 @@ void sort_packets(packet *packet_array)
 /* Reorganize the sorted packets array */
 void reorg(packet *packet_array)
 {
+}
+
+/* Get the number of lines of a file */
+int num_line(FILE* fd) 
+{
+    int lines = 0;
+    char c = getc(fd);
+    while (c != EOF) 
+    {
+        if (c == '\n') {
+            lines += 1;
+        }
+        c = getc(fd);
+    }
+    return lines - 1;
 }
 
 struct connInfo
@@ -110,14 +127,27 @@ int main(int argc, char *argv[])
         }
         packet *pkt = malloc(sizeof(packet));
         memcpy(pkt, buf, sizeof(buf));
+        printf("data is %s\n", (*pkt).data);
+        printf("seq number is %d\n", (*pkt).header.seq_num);
+        printf("is last %d\n", (*pkt).header.isLast);
         if (strcmp((*pkt).header.file, file) == 0)
         {
             fprintf(fptr, "%d\n", (*pkt).header.seq_num);
             fprintf(fptr, "%d\n", (*pkt).header.length);
             fprintf(fptr, "%s\n", (*pkt).data);
+            
+        }
+        if ((*pkt).header.isLast == 1)
+        {
+            max_num_pkt = (*pkt).header.seq_num + 1;
+            printf("Total number of packets is %d\n", max_num_pkt);
         }
     }
     fclose(fptr);
+    FILE *fd = fopen(file, "r");
+    int num = num_line(fd);
+    printf("%d lines\n", num);
+    fclose(fd);
 #ifdef LOG_INFO
     printf("Server: totally close\n");
 #endif

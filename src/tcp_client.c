@@ -20,7 +20,6 @@
 void build(char *data, int slices, packet *packets, pair *file)
 {
     int data_len = strlen(data);
-
     if (slices == 1)
     {
         // update packet -> header -> flag
@@ -30,7 +29,6 @@ void build(char *data, int slices, packet *packets, pair *file)
         file->count += 1;
         // update packet -> header -> length
         packets[0].header.length = data_len;
-
         // update packet -> data
         strncpy(packets[0].data, data + 0 * DATA_LENGTH, packets[0].header.length);
     }
@@ -45,7 +43,6 @@ void build(char *data, int slices, packet *packets, pair *file)
             file->count += 1;
             // update packet -> header -> length
             packets[i].header.length = (i != slices - 1) ? DATA_LENGTH : data_len % DATA_LENGTH;
-
             // update packet -> data
             strncpy(packets[i].data, data + DATA_LENGTH * i, packets[i].header.length);
         }
