@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include "vector.h"
+#include "../include/vector.h"
 
 /* The number of buckets to allocate */
 static const int32_t DS_HASHMAP_BUCKETS = 1000000;
