@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-
-#include "vector.h"
+#include "../include/vector.h"
 
 /* private function to check and possibly expand a vector's capacity */
 static void

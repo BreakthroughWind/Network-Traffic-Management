@@ -17,27 +17,58 @@
 #define DATA_LENGTH 20
 #define LOG_INFO 1
 // #define PACKET_LENGTH 1500
+#define LINE 1024
 
 int max_num_pkt;
 
-/* Sort the recevied packets array */
-void sort_packets(packet *packet_array)
-{
-}
-
 /* Reorganize the sorted packets array */
-void reorg(packet *packet_array)
+void reorg(char unsorted_file[], char sorted_file[])
 {
+    FILE *unsorted_fd = fopen(unsorted_file, "r");
+    FILE *sorted_fd = fopen(sorted_file, "w");
+
+    int nums = num_line(unsorted_fd);
+    rewind(unsorted_fd);
+
+    struct DSHashMap *hash;
+    hash = ds_hashmap_create();
+
+    for (int i = 0; i < nums; i += 3)
+    {
+        char *buf_seq = (char *)malloc(LINE * sizeof(char));
+        char *buf_len = (char *)malloc(LINE * sizeof(char));
+        char *buf_data = (char *)malloc(LINE * sizeof(char));
+
+        buf_seq = fgets(buf_seq, LINE, unsorted_fd);
+        buf_len = fgets(buf_len, LINE, unsorted_fd);
+        buf_data = fgets(buf_data, LINE, unsorted_fd);
+
+        printf("%d\n", atoi(buf_seq));
+        printf("%s\n", buf_data);
+
+        ds_puti(hash, atoi(buf_seq), buf_data);
+    }
+
+    for (int i = 0; i < nums / 3; i++)
+    {
+        fprintf(sorted_fd, "%s", (char *)ds_geti(hash, (int32_t)i));
+    }
+
+    ds_hashmap_free(hash, false, false);
+
+    fclose(unsorted_fd);
+    fclose(sorted_fd);
 }
 
 /* Get the number of lines of a file */
-int num_line(FILE* fd) 
+int num_line(FILE *fd)
 {
     int lines = 0;
     char c = getc(fd);
-    while (c != EOF) 
+    while (c != EOF)
     {
-        if (c == '\n') {
+        if (c == '\n')
+        {
             lines += 1;
         }
         c = getc(fd);
@@ -109,8 +140,9 @@ int main(int argc, char *argv[])
 #ifdef LOG_INFO
     printf("Server: accept connection from %s:%d\n", conn->remoteIp, conn->remotePort);
 #endif
-    char file[] = "hello.txt";
-    FILE *fptr = fopen(file, "w");
+    char unsorted_file[] = "hello.txt";
+    char sorted_file[] = "sorted_file.txt";
+    FILE *fptr = fopen(unsorted_file, "w");
     //read data:
     unsigned char buf[sizeof(packet)];
     while (1)
@@ -125,17 +157,15 @@ int main(int argc, char *argv[])
         {
             break;
         }
+
         packet *pkt = malloc(sizeof(packet));
         memcpy(pkt, buf, sizeof(buf));
-        printf("data is %s\n", (*pkt).data);
-        printf("seq number is %d\n", (*pkt).header.seq_num);
-        printf("is last %d\n", (*pkt).header.isLast);
-        if (strcmp((*pkt).header.file, file) == 0)
+
+        if (strcmp((*pkt).header.file, unsorted_file) == 0)
         {
             fprintf(fptr, "%d\n", (*pkt).header.seq_num);
             fprintf(fptr, "%d\n", (*pkt).header.length);
             fprintf(fptr, "%s\n", (*pkt).data);
-            
         }
         if ((*pkt).header.isLast == 1)
         {
@@ -143,11 +173,11 @@ int main(int argc, char *argv[])
             printf("Total number of packets is %d\n", max_num_pkt);
         }
     }
+
     fclose(fptr);
-    FILE *fd = fopen(file, "r");
-    int num = num_line(fd);
-    printf("%d lines\n", num);
-    fclose(fd);
+
+    reorg(unsorted_file, sorted_file);
+
 #ifdef LOG_INFO
     printf("Server: totally close\n");
 #endif
