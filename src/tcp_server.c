@@ -21,47 +21,42 @@
 
 int max_num_pkt;
 
+
 /* Reorganize the sorted packets array */
 void reorg(char unsorted_file[], char sorted_file[])
 {
-    FILE *unsorted_fd = fopen(unsorted_file, "r");
+    
     FILE *sorted_fd = fopen(sorted_file, "w");
+    FILE *unsorted_fd = fopen(unsorted_file, "r");
+    int num_lines = get_num_lines(unsorted_fd);
+    
 
-    int nums = num_line(unsorted_fd);
-    rewind(unsorted_fd);
+    int cur_seq = 0;
+    int max_seq = (num_lines / 3) - 1; 
 
-    struct DSHashMap *hash;
-    hash = ds_hashmap_create();
+    while (cur_seq <= max_seq) {
+        unsorted_fd = fopen(unsorted_file, "r");
+        for (int i = 0; i < num_lines; i += 3)
+        {
+            char *buf_seq = (char *)malloc(LINE * sizeof(char));
+            buf_seq = fgets(buf_seq, LINE, unsorted_fd);
+            if (atoi(buf_seq) == cur_seq) {
+                char *buf_len = (char *)malloc(LINE * sizeof(char));
+                char *buf_data = (char *)malloc(LINE * sizeof(char));
+                buf_len = fgets(buf_len, LINE, unsorted_fd);
+                buf_data = fgets(buf_data, LINE, unsorted_fd);
 
-    for (int i = 0; i < nums; i += 3)
-    {
-        char *buf_seq = (char *)malloc(LINE * sizeof(char));
-        char *buf_len = (char *)malloc(LINE * sizeof(char));
-        char *buf_data = (char *)malloc(LINE * sizeof(char));
-
-        buf_seq = fgets(buf_seq, LINE, unsorted_fd);
-        buf_len = fgets(buf_len, LINE, unsorted_fd);
-        buf_data = fgets(buf_data, LINE, unsorted_fd);
-
-        printf("%d\n", atoi(buf_seq));
-        printf("%s\n", buf_data);
-
-        ds_puti(hash, atoi(buf_seq), buf_data);
+                fprintf(sorted_fd, "%s", buf_data);
+                cur_seq++;
+            }
+        }
+        fclose(unsorted_fd);
     }
-
-    for (int i = 0; i < nums / 3; i++)
-    {
-        fprintf(sorted_fd, "%s", (char *)ds_geti(hash, (int32_t)i));
-    }
-
-    ds_hashmap_free(hash, false, false);
-
-    fclose(unsorted_fd);
     fclose(sorted_fd);
 }
 
 /* Get the number of lines of a file */
-int num_line(FILE *fd)
+int get_num_lines(FILE *fd)
 {
     int lines = 0;
     char c = getc(fd);
