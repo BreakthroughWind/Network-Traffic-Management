@@ -45,6 +45,7 @@ void reorg(char unsorted_file[], char sorted_file[])
                 char *buf_data = (char *)malloc(LINE * sizeof(char));
                 buf_len = fgets(buf_len, LINE, unsorted_fd);
                 buf_data = fgets(buf_data, LINE, unsorted_fd);
+                buf_data[atoi(buf_len)] = '\0';
 
                 fprintf(sorted_fd, "%s", buf_data);
                 cur_seq++;
